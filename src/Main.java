@@ -30,13 +30,59 @@ public class Main {
         placeShrooms();
 
         while(true) {
+            printBoard();
+
             try {
-                Thread.sleep(1000);
+                Thread.sleep(250);
             } catch(InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
 
-            printBoard();
+            Iterator it = heads.iterator();
+            while(it.hasNext()) {
+                Centipede head = (Centipede) it.next();
+                if(head.dir) {
+                    if(head.col == 29) {
+                        head.nxtRow = head.row + 1;
+                        head.nxtCol = head.col;
+                        head.dir = false;
+                    } else {
+                        head.nxtRow = head.row;
+                        head.nxtCol = head.col + 1;
+                    }
+                } else {
+                    if(head.col == 0) {
+                        head.nxtRow = head.row + 1;
+                        head.nxtCol = head.col;
+                        head.dir = true;
+                    } else {
+                        head.nxtRow = head.row;
+                        head.nxtCol = head.col - 1;
+                    }
+                }
+
+                Centipede parent = head;
+                Centipede child = head.next;
+                while(parent != null) {
+                    if(child != null) {
+                        child.nxtRow = parent.row;
+                        child.nxtCol = parent.col;
+                        child = child.next;
+                    }
+
+                    board[parent.nxtRow][parent.nxtCol] = parent;
+                    board[parent.row][parent.col] = blank;
+                    parent = parent.next;
+
+                }
+
+                Centipede seg = head;
+                while(seg != null) {
+                    seg.row = seg.nxtRow;
+                    seg.col = seg.nxtCol;
+                    seg = seg.next;
+                }
+            }
         }
     }
 

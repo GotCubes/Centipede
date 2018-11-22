@@ -1,8 +1,8 @@
 public class Drawable {
 
     public int speed;
-    public int row;
-    public int col;
+    public int row, nxtRow;
+    public int col, nxtCol;
     public int cnt;
 
     public Drawable(){

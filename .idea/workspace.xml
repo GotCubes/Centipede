@@ -2,14 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7d7dbbe2-c7dc-4b59-954c-03adcb735622" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Centipede.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Drawable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Mushroom.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Centipede/Main.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Centipede/Drawable.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Centipede/Drawable.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Centipede/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Centipede/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Drawable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Drawable.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -79,12 +75,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="2729" />
+          <entry key="java" value="3771" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="2729" />
+          <entry key="JAVA" value="3771" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -104,8 +100,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="258">
-              <caret line="37" selection-start-line="37" selection-end-line="37" />
+            <state relative-caret-position="166">
+              <caret line="35" column="31" selection-start-line="35" selection-start-column="31" selection-end-line="35" selection-end-column="31" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -116,8 +112,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Drawable.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="12" column="51" selection-start-line="12" selection-start-column="51" selection-end-line="12" selection-end-column="51" />
+            <state relative-caret-position="68">
+              <caret line="4" column="27" lean-forward="true" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="27" />
               <folding>
                 <element signature="e#129#130#0" expanded="true" />
                 <element signature="e#147#148#0" expanded="true" />
@@ -209,24 +205,6 @@
             <path>
               <item name="Centipede" type="b2602c69:ProjectViewProjectNode" />
               <item name="Centipede" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Centipede" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Centipede" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-              <item name="production" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Centipede" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Centipede" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-              <item name="production" type="462c0819:PsiDirectoryNode" />
-              <item name="Centipede" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Centipede" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Centipede" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -238,7 +216,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1542859419597" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1542861145201" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
@@ -282,6 +260,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19731544" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -319,10 +298,14 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="jar://C:/Program Files (x86)/Java/jdk1.8.0_112/src.zip!/java/util/ArrayList.java" />
-    <entry file="file://$PROJECT_DIR$/src/Centipede.java">
+    <entry file="file://$PROJECT_DIR$/src/Drawable.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="19" selection-start-line="19" selection-end-line="19" />
+        <state relative-caret-position="68">
+          <caret line="4" column="27" lean-forward="true" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="27" />
+          <folding>
+            <element signature="e#129#130#0" expanded="true" />
+            <element signature="e#147#148#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -333,21 +316,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Drawable.java">
+    <entry file="file://$PROJECT_DIR$/src/Centipede.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="51" selection-start-line="12" selection-start-column="51" selection-end-line="12" selection-end-column="51" />
-          <folding>
-            <element signature="e#129#130#0" expanded="true" />
-            <element signature="e#147#148#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="323">
+          <caret line="19" selection-start-line="19" selection-end-line="19" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="37" selection-start-line="37" selection-end-line="37" />
+        <state relative-caret-position="166">
+          <caret line="35" column="31" selection-start-line="35" selection-start-column="31" selection-end-line="35" selection-end-column="31" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
