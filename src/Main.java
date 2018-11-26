@@ -1,12 +1,13 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.Arrays;
 
 public class Main {
 
-    public static Object[][] board = new Object[30][30];
+    public static Drawable[][] board = new Drawable[30][30];
+    public static Drawable blank = new Drawable();
     public static int density;
+    public static ArrayList heads = new ArrayList();
 
     public static void main(String[] args) {
         if(args.length != 1) {
@@ -20,7 +21,51 @@ public class Main {
             System.exit(-2);
         }
 
+        for(int i = 0; i < board.length; i++) {
+            for(int j = 0; j < board[0].length; j++)
+                board[i][j] = blank;
+        }
+
+        initCentipede();
         placeShrooms();
+
+        while(true) {
+
+            try {
+                Thread.sleep(100);
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+
+            Iterator it = heads.iterator();
+            while(it.hasNext()) {
+                Centipede head = (Centipede) it.next();
+                if(head.frameCnt == 0) {
+                    head.move(null);
+                    printBoard();
+                }
+                head.frameCnt = (head.frameCnt + 1) % head.maxFrames;
+            }
+        }
+    }
+
+    public static void printBoard() {
+        StringBuilder ret = new StringBuilder();
+        for(int i = 0; i < board.length; i++) {
+            for(int j = 0; j < board[0].length; j++)
+                ret.append(board[i][j]);
+            ret.append("\n");
+        }
+        System.out.print(ret.toString());
+    }
+
+    // Initialize the centipede.
+    public static void initCentipede() {
+        board[0][0] = new Centipede(0, 0, null, false);
+        for(int i = 1; i < 11; i++)
+            board[0][i] = new Centipede(0, i, (Centipede) board[0][i - 1], false);
+        board[0][11] = new Centipede(0, 11, (Centipede) board[0][10], true);
+        heads.add(board[0][11]);
     }
 
     // Place mushrooms on the board according to the density.
@@ -28,39 +73,27 @@ public class Main {
         ArrayList valCols = new ArrayList();
         for(int i = 1; i < (board[0].length - 1); i++) valCols.add(i);
 
-        System.out.println("------------------------------");
-        System.out.println("------------------------------");
-        System.out.println("------------------------------");
-
         // Iterate through each row in the placeable range.
-        for(int row = (board.length / 10); row < (board.length  - (board.length / 10)); row++) {
+        for(int row = 1; row < (board.length  - (board.length / 10)); row++) {
             // Get each valid column in the row.
             Iterator it = valCols.iterator();
-            //System.out.println(valCols);
             
-            ArrayList valCopy = new ArrayList();
-            for(int i = 1; i < (board[0].length - 1); i++) valCopy.add(i);
+            ArrayList nxtVals = new ArrayList();
+            for(int i = 1; i < (board[0].length - 1); i++) nxtVals.add(i);
 
             // Iterate through each valid column.
-            char[] disp = new char[30];
-            Arrays.fill(disp, '-');
             while(it.hasNext()) {
-                int ind = (Integer) it.next();
+                int col = (Integer) it.next();
                 if(getXinYChance(density, 15)) {
-                    disp[ind] = 'X';
-                    valCopy.remove(Integer.valueOf(ind - 1));
-                    valCopy.remove(Integer.valueOf(ind));
-                    valCopy.remove(Integer.valueOf(ind + 1));
+                    board[row][col] = new Mushroom(row, col);
+                    nxtVals.remove(Integer.valueOf(col - 1));
+                    nxtVals.remove(Integer.valueOf(col + 1));
                 }
             }
 
-            System.out.println(disp);
-            valCols = valCopy;
+            // Update list of valid columns.
+            valCols = nxtVals;
         }
-
-        System.out.println("------------------------------");
-        System.out.println("------------------------------");
-        System.out.println("------------------------------");
     }
 
     // Return true with a num in den chance.
