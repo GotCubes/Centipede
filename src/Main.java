@@ -5,6 +5,7 @@ import java.util.Random;
 public class Main {
 
     public static Drawable[][] board = new Drawable[30][30];
+    public static Drawable blank = new Drawable();
     public static int density;
     public static ArrayList heads = new ArrayList();
 
@@ -20,7 +21,6 @@ public class Main {
             System.exit(-2);
         }
 
-        Drawable blank = new Drawable();
         for(int i = 0; i < board.length; i++) {
             for(int j = 0; j < board[0].length; j++)
                 board[i][j] = blank;
@@ -41,47 +41,7 @@ public class Main {
             Iterator it = heads.iterator();
             while(it.hasNext()) {
                 Centipede head = (Centipede) it.next();
-                if(head.dir) {
-                    if(head.col == 29) {
-                        head.nxtRow = head.row + 1;
-                        head.nxtCol = head.col;
-                        head.dir = false;
-                    } else {
-                        head.nxtRow = head.row;
-                        head.nxtCol = head.col + 1;
-                    }
-                } else {
-                    if(head.col == 0) {
-                        head.nxtRow = head.row + 1;
-                        head.nxtCol = head.col;
-                        head.dir = true;
-                    } else {
-                        head.nxtRow = head.row;
-                        head.nxtCol = head.col - 1;
-                    }
-                }
-
-                Centipede parent = head;
-                Centipede child = head.next;
-                while(parent != null) {
-                    if(child != null) {
-                        child.nxtRow = parent.row;
-                        child.nxtCol = parent.col;
-                        child = child.next;
-                    }
-
-                    board[parent.nxtRow][parent.nxtCol] = parent;
-                    board[parent.row][parent.col] = blank;
-                    parent = parent.next;
-
-                }
-
-                Centipede seg = head;
-                while(seg != null) {
-                    seg.row = seg.nxtRow;
-                    seg.col = seg.nxtCol;
-                    seg = seg.next;
-                }
+                head.move(null);
             }
         }
     }
