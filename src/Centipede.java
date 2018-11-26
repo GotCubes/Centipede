@@ -11,6 +11,7 @@ public class Centipede extends Drawable{
         col = y;
         next = n;
         head = h;
+        maxFrames = 3;
     }
 
     @Override

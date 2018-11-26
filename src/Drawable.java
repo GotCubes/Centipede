@@ -1,12 +1,9 @@
 public class Drawable {
 
-    public int speed;
-    public int row, nxtRow;
-    public int col, nxtCol;
-    public int cnt;
+    public int speed, row, col, frameCnt, maxFrames;
 
     public Drawable(){
-        cnt = 0;
+        frameCnt = 0;
     }
 
     @Override

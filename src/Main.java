@@ -30,10 +30,9 @@ public class Main {
         placeShrooms();
 
         while(true) {
-            printBoard();
 
             try {
-                Thread.sleep(250);
+                Thread.sleep(100);
             } catch(InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
@@ -41,7 +40,11 @@ public class Main {
             Iterator it = heads.iterator();
             while(it.hasNext()) {
                 Centipede head = (Centipede) it.next();
-                head.move(null);
+                if(head.frameCnt == 0) {
+                    head.move(null);
+                    printBoard();
+                }
+                head.frameCnt = (head.frameCnt + 1) % head.maxFrames;
             }
         }
     }
@@ -75,20 +78,21 @@ public class Main {
             // Get each valid column in the row.
             Iterator it = valCols.iterator();
             
-            ArrayList valCopy = new ArrayList();
-            for(int i = 1; i < (board[0].length - 1); i++) valCopy.add(i);
+            ArrayList nxtVals = new ArrayList();
+            for(int i = 1; i < (board[0].length - 1); i++) nxtVals.add(i);
 
             // Iterate through each valid column.
             while(it.hasNext()) {
                 int col = (Integer) it.next();
                 if(getXinYChance(density, 15)) {
                     board[row][col] = new Mushroom(row, col);
-                    valCopy.remove(Integer.valueOf(col - 1));
-                    valCopy.remove(Integer.valueOf(col + 1));
+                    nxtVals.remove(Integer.valueOf(col - 1));
+                    nxtVals.remove(Integer.valueOf(col + 1));
                 }
             }
 
-            valCols = valCopy;
+            // Update list of valid columns.
+            valCols = nxtVals;
         }
     }
 
