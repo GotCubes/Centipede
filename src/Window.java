@@ -1,71 +1,93 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-public class Window extends JFrame{
+public class Window extends JFrame implements ActionListener{
 
     public static Drawable[][] board = new Drawable[30][30];
     public static Drawable blank = new Drawable();
-    public static int density;
     public static ArrayList heads = new ArrayList();
+    public static int density;
 
     public Window() {
         setVisible(true);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(650, 650);
+        setSize(650, 675);
         getContentPane().setBackground(Color.black);
     }
 
-    public void paint(Graphics g) {
-        super.paint(g);
-        g.setColor(Color.red);
-        System.out.println(getWidth() + " " + getHeight());
-        g.drawRect(25, 25, getWidth() - 50, getHeight() - 50);
+    public void actionPerformed(ActionEvent e) {
+        // Repaint the panel.
+        repaint();
+
+        // Update all centipedes.
+        Iterator it = heads.iterator();
+        while(it.hasNext()) {
+            Centipede head = (Centipede) it.next();
+            if(head.frameCnt == 0)
+                head.move(null);
+            head.frameCnt = (head.frameCnt + 1) % head.speed;
+        }
     }
 
     public static void main(String[] args) {
+        // Verify correct usage.
         if(args.length != 1) {
             System.out.println("Usage: java Main density");
             System.exit(-1);
         }
 
+        // Verify proper density.
         density = Integer.valueOf(args[0]);
         if(density < 1 || density > 5) {
             System.out.println("Density must be a value between 1 and 5.");
             System.exit(-2);
         }
 
-        Window window = new Window();
-
-        /*for(int i = 0; i < board.length; i++) {
+        // Initialize empty board.
+        for(int i = 0; i < board.length; i++) {
             for(int j = 0; j < board[0].length; j++)
                 board[i][j] = blank;
         }
 
+        // Place centipede and mushrooms.
         initCentipede();
         placeShrooms();
 
-        while(true) {
+        // Initialize window and panel.
+        Window window = new Window();
+        JPanel panel = new JPanel() {
+            // Paint objects onto the panel.
+            public void paintComponent(Graphics g) {
 
-            try {
-                Thread.sleep(100);
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
+                setOpaque(false);
+                setSize(650, 650);
+                setBackground(Color.black);
+                g.setColor(Color.red);
+                g.drawRect(25, 25, getWidth() - 50, getHeight() - 50);
 
-            Iterator it = heads.iterator();
-            while(it.hasNext()) {
-                Centipede head = (Centipede) it.next();
-                if(head.frameCnt == 0) {
-                    head.move(null);
-                    printBoard();
+                for(int i = 0; i < board.length; i++) {
+                    for(int j = 0; j < board[0].length; j++) {
+                        if(board[i][j] instanceof Centipede) {
+                            g.setColor(((Centipede) board[i][j]).head ? Color.blue : Color.green);
+                            g.fillOval(j * 20 + 25, i * 20 + 25, 20, 20);
+                        } else if(board[i][j] instanceof Mushroom) {
+                            g.setColor(new Color(118, 85, 43));
+                            g.fillRect(j * 20 + 25, i * 20 + 25, 20, 20);
+                        }
+                    }
                 }
-                head.frameCnt = (head.frameCnt + 1) % head.maxFrames;
             }
-        }*/
+        };
+        window.add(panel);
+
+        Timer timer = new Timer(17, window);
+        timer.setRepeats(true);
+        timer.start();
     }
 
     public static void printBoard() {
@@ -103,7 +125,7 @@ public class Window extends JFrame{
             // Iterate through each valid column.
             while(it.hasNext()) {
                 int col = (Integer) it.next();
-                if(getXinYChance(density, 15)) {
+                if(getXinYChance(density, 30)) {
                     board[row][col] = new Mushroom(row, col);
                     nxtVals.remove(Integer.valueOf(col - 1));
                     nxtVals.remove(Integer.valueOf(col + 1));

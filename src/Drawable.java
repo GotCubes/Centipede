@@ -1,6 +1,6 @@
 public class Drawable {
 
-    public int speed, row, col, frameCnt, maxFrames;
+    public int speed, row, col, frameCnt;
 
     public Drawable(){
         frameCnt = 0;

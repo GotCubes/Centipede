@@ -6,12 +6,11 @@ public class Centipede extends Drawable{
 
     public Centipede(int x, int y, Centipede n, boolean h) {
         dir = true;
-        speed = 5;
+        speed = 6;
         row = x;
         col = y;
         next = n;
         head = h;
-        maxFrames = 3;
     }
 
     @Override
