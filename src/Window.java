@@ -1,13 +1,30 @@
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-public class Main {
+public class Window extends JFrame{
 
     public static Drawable[][] board = new Drawable[30][30];
     public static Drawable blank = new Drawable();
     public static int density;
     public static ArrayList heads = new ArrayList();
+
+    public Window() {
+        setVisible(true);
+        setResizable(false);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(650, 650);
+        getContentPane().setBackground(Color.black);
+    }
+
+    public void paint(Graphics g) {
+        super.paint(g);
+        g.setColor(Color.red);
+        System.out.println(getWidth() + " " + getHeight());
+        g.drawRect(25, 25, getWidth() - 50, getHeight() - 50);
+    }
 
     public static void main(String[] args) {
         if(args.length != 1) {
@@ -21,7 +38,9 @@ public class Main {
             System.exit(-2);
         }
 
-        for(int i = 0; i < board.length; i++) {
+        Window window = new Window();
+
+        /*for(int i = 0; i < board.length; i++) {
             for(int j = 0; j < board[0].length; j++)
                 board[i][j] = blank;
         }
@@ -46,7 +65,7 @@ public class Main {
                 }
                 head.frameCnt = (head.frameCnt + 1) % head.maxFrames;
             }
-        }
+        }*/
     }
 
     public static void printBoard() {

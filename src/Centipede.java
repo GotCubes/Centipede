@@ -25,7 +25,7 @@ public class Centipede extends Drawable{
         // Get next location if head.
         if(head) {
             // Test for collision.
-            if(nxtCol < 0 || nxtCol > 29 || Main.board[row][nxtCol] instanceof Mushroom) {
+            if(nxtCol < 0 || nxtCol > 29 || Window.board[row][nxtCol] instanceof Mushroom) {
                 nxtRow = row + 1;
                 nxtCol = col;
                 dir = !dir;
@@ -39,9 +39,9 @@ public class Centipede extends Drawable{
         // Recursively move all segments in the centipede, and update board.
         if(next != null) {
             next.move(this);
-            Main.board[nxtRow][nxtCol] = this;
+            Window.board[nxtRow][nxtCol] = this;
         } else
-            Main.board[row][col] = Main.blank;
+            Window.board[row][col] = Window.blank;
 
         // Update segment location.
         row = nxtRow;
