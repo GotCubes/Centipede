@@ -7,6 +7,7 @@ public class Centipede extends Drawable{
     public Centipede(int x, int y, Centipede n, boolean h) {
         dir = true;
         speed = 5;
+        durability = 2;
         row = x;
         col = y;
         next = n;

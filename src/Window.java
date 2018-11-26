@@ -11,6 +11,8 @@ public class Window extends JFrame implements ActionListener{
     public static Drawable[][] board = new Drawable[30][30];
     public static Drawable blank = new Drawable();
     public static ArrayList heads = new ArrayList();
+    public static ArrayList segments = new ArrayList();
+    public static ArrayList mushrooms = new ArrayList();
     public static ArrayList bullets = new ArrayList();
     public static Player player;
     public static int density;
@@ -23,7 +25,7 @@ public class Window extends JFrame implements ActionListener{
         getContentPane().setBackground(Color.black);
 
         BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-        Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
+        Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank");
         getContentPane().setCursor(blankCursor);
     }
 
@@ -35,11 +37,11 @@ public class Window extends JFrame implements ActionListener{
         // Update player location.
         Point p = MouseInfo.getPointerInfo().getLocation();
         if(player.frameCnt == 0) {
+            // Contstrain within the game area.
             player.row = Math.min(Math.max(p.x - 13, 25), 605);
             player.col = Math.min(Math.max(p.y - 36, 25), 605);
         }
         player.frameCnt = (player.frameCnt + 1) % player.speed;
-
 
         // Update all centipedes.
         Iterator it = heads.iterator();
@@ -104,17 +106,28 @@ public class Window extends JFrame implements ActionListener{
                 g2d.setColor(Color.red);
                 g2d.drawRect(25, 25, getWidth() - 50, getHeight() - 50);
 
-                // Draw all grid-bound objects.
-                for(int i = 0; i < board.length; i++) {
-                    for(int j = 0; j < board[0].length; j++) {
-                        if(board[i][j] instanceof Centipede) {
-                            g2d.setColor(((Centipede) board[i][j]).head ? Color.blue : Color.green);
-                            g2d.fillOval(j * 20 + 25, i * 20 + 25, 20, 20);
-                        } else if(board[i][j] instanceof Mushroom) {
-                            g2d.setColor(new Color(118, 85, 43));
-                            g2d.fillRect(j * 20 + 25, i * 20 + 25, 20, 20);
-                        }
-                    }
+                // Draw centipede heads.
+                Iterator it = heads.iterator();
+                while(it.hasNext()) {
+                    Centipede head = (Centipede) it.next();
+                    g2d.setColor(Color.blue);
+                    g2d.fillOval(head.col * 20 + 25, head.row * 20 + 25, 20, 20);
+                }
+
+                // Draw centipede segments.
+                it = segments.iterator();
+                while(it.hasNext()) {
+                    Centipede seg = (Centipede) it.next();
+                    g2d.setColor(Color.green);
+                    g2d.fillOval(seg.col * 20 + 25, seg.row * 20 + 25, 20, 20);
+                }
+
+                // Draw mushrooms.
+                it = mushrooms.iterator();
+                while(it.hasNext()) {
+                    Mushroom mush = (Mushroom) it.next();
+                    g2d.setColor(new Color(118, 85, 43));
+                    g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 25, 20, 20);
                 }
 
                 // Draw player.
@@ -122,7 +135,7 @@ public class Window extends JFrame implements ActionListener{
                 g2d.fillOval(player.row, player.col, 20, 20);
 
                 // Draw bullets.
-                Iterator it = bullets.iterator();
+                it = bullets.iterator();
                 while(it.hasNext()) {
                     Bullet bullet = (Bullet) it.next();
                     g2d.setStroke(new BasicStroke(3));
@@ -138,9 +151,9 @@ public class Window extends JFrame implements ActionListener{
                 bullets.add(bullet);
             }
         });
-
         window.add(panel);
 
+        // Initialize game loop.
         Timer timer = new Timer(17, window);
         timer.setRepeats(true);
         timer.start();
@@ -164,8 +177,11 @@ public class Window extends JFrame implements ActionListener{
     // Initialize the centipede.
     public static void initCentipede() {
         board[0][0] = new Centipede(0, 0, null, false);
-        for(int i = 1; i < 11; i++)
+        segments.add(board[0][0]);
+        for(int i = 1; i < 11; i++) {
             board[0][i] = new Centipede(0, i, (Centipede) board[0][i - 1], false);
+            segments.add(board[0][i]);
+        }
         board[0][11] = new Centipede(0, 11, (Centipede) board[0][10], true);
         heads.add(board[0][11]);
     }
@@ -188,6 +204,7 @@ public class Window extends JFrame implements ActionListener{
                 int col = (Integer) it.next();
                 if(getXinYChance(density, 30)) {
                     board[row][col] = new Mushroom(row, col);
+                    mushrooms.add(board[row][col]);
                     nxtVals.remove(Integer.valueOf(col - 1));
                     nxtVals.remove(Integer.valueOf(col + 1));
                 }
