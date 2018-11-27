@@ -30,11 +30,44 @@ public class Window extends JFrame implements ActionListener{
         getContentPane().setCursor(blankCursor);
     }
 
+    public void testCollisions() {
+        Iterator bull = bullets.iterator();
+        ArrayList btoRemove = new ArrayList();
+        ArrayList mtoRemove = new ArrayList();
+        while(bull.hasNext()) {
+            Bullet b = (Bullet) bull.next();
+
+            Iterator mush = mushrooms.iterator();
+            while(mush.hasNext()) {
+                Mushroom m = (Mushroom) mush.next();
+                int clb = (m.row * 20) + 50;
+                int cub = (m.row * 20) + 50 + 20;
+                int rlb = (m.col * 20) + 25;
+                int rub = (m.col * 20) + 25 + 20;
+                if(b.col <= cub && b.col >= clb) {
+                    if(b.row <= rub && b.row >= rlb) {
+                        btoRemove.add(b);
+
+                        if(++m.hitCnt == m.durability) {
+                            mtoRemove.add(m);
+                            board[m.row][m.col] = blank;
+                        }
+                    }
+                }
+            }
+        }
+        bullets.removeAll(btoRemove);
+        mushrooms.removeAll(mtoRemove);
+    }
+
     public void actionPerformed(ActionEvent e) {
         // Repaint the panel.
         //printBoard();
         revalidate();
         repaint();
+
+        // See if any relevant collisions occurred.
+        testCollisions();
 
         // Update player location.
         Point p = MouseInfo.getPointerInfo().getLocation();
@@ -130,7 +163,13 @@ public class Window extends JFrame implements ActionListener{
                 while(it.hasNext()) {
                     Mushroom mush = (Mushroom) it.next();
                     g2d.setColor(new Color(118, 85, 43));
-                    g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 50, 20, 20);
+
+                    if(mush.hitCnt == 0)
+                        g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 50, 20, 20);
+                    else if(mush.hitCnt == 1)
+                        g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 50, 20, 15);
+                    else if(mush.hitCnt == 2)
+                        g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 50, 20, 10);
                 }
 
                 // Draw player.
@@ -141,9 +180,13 @@ public class Window extends JFrame implements ActionListener{
                 it = bullets.iterator();
                 while(it.hasNext()) {
                     Bullet bullet = (Bullet) it.next();
+
                     g2d.setStroke(new BasicStroke(3));
                     g2d.setColor(Color.yellow);
                     g2d.drawLine(bullet.row, bullet.col, bullet.row, bullet.col + 10);
+
+                    g2d.setColor(Color.red);
+                    g2d.fillOval(bullet.row - 3, bullet.col - 3, 6, 6);
                 }
             }
         };

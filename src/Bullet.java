@@ -2,7 +2,7 @@ public class Bullet extends Drawable {
     public int dy;
 
     public Bullet(int x, int y) {
-        dy = 25;
+        dy = 10;
         row = x;
         col = y;
     }

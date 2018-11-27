@@ -4,6 +4,7 @@ public class Drawable {
 
     public Drawable(){
         frameCnt = 0;
+        hitCnt = 0;
         speed = 1;
     }
 
