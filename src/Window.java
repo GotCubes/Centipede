@@ -16,12 +16,13 @@ public class Window extends JFrame implements ActionListener{
     public static ArrayList bullets = new ArrayList();
     public static Player player;
     public static int density, score, lives;
+    public static JLabel scr, lvs;
 
     public Window() {
         setVisible(true);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(650, 725);
+        setSize(665, 710);
         getContentPane().setBackground(Color.black);
 
         BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
@@ -32,17 +33,16 @@ public class Window extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         // Repaint the panel.
         //printBoard();
+        revalidate();
         repaint();
 
         // Update player location.
         Point p = MouseInfo.getPointerInfo().getLocation();
         Point q = getLocationOnScreen();
-        if(player.frameCnt == 0) {
-            // Contstrain within the game area.
-            player.row = Math.min(Math.max(p.x - q.x - 13, 25), 605);
-            player.col = Math.min(Math.max(p.y - q.y - 36, 75), 655);
-        }
-        player.frameCnt = (player.frameCnt + 1) % player.speed;
+
+        // Contstrain within the game area.
+        player.row = Math.min(Math.max(p.x - q.x - 13, 25), 605);
+        player.col = Math.min(Math.max(p.y - q.y - 36, 50), 630);
 
         // Update all centipedes.
         Iterator it = heads.iterator();
@@ -58,12 +58,9 @@ public class Window extends JFrame implements ActionListener{
         ArrayList toRemove = new ArrayList();
         while(it.hasNext()) {
             Bullet bullet = (Bullet) it.next();
+            bullet.col -= bullet.dy;
 
-            if(bullet.frameCnt == 0)
-                bullet.col -= 10;
-            bullet.frameCnt = (bullet.frameCnt + 1) % bullet.speed;
-
-            if(bullet.col < 75)
+            if(bullet.col < 50)
                 toRemove.add(bullet);
         }
         bullets.removeAll(toRemove);
@@ -93,6 +90,8 @@ public class Window extends JFrame implements ActionListener{
         initPlayer();
         initCentipede();
         placeShrooms();
+        score = 0;
+        lives = 3;
 
         // Initialize window and panel.
         Window window = new Window();
@@ -105,14 +104,17 @@ public class Window extends JFrame implements ActionListener{
                 setSize(650, 700);
                 setBackground(Color.black);
                 g2d.setColor(Color.red);
-                g2d.drawRect(25, 75, 600, 600);
+                g2d.drawRect(25, 50, 600, 600);
+
+                scr.setText("Score: " + score);
+                lvs.setText("Lives: " + lives);
 
                 // Draw centipede heads.
                 Iterator it = heads.iterator();
                 while(it.hasNext()) {
                     Centipede head = (Centipede) it.next();
                     g2d.setColor(Color.blue);
-                    g2d.fillOval(head.col * 20 + 25, head.row * 20 + 75, 20, 20);
+                    g2d.fillOval(head.col * 20 + 25, head.row * 20 + 50, 20, 20);
                 }
 
                 // Draw centipede segments.
@@ -120,7 +122,7 @@ public class Window extends JFrame implements ActionListener{
                 while(it.hasNext()) {
                     Centipede seg = (Centipede) it.next();
                     g2d.setColor(Color.green);
-                    g2d.fillOval(seg.col * 20 + 25, seg.row * 20 + 75, 20, 20);
+                    g2d.fillOval(seg.col * 20 + 25, seg.row * 20 + 50, 20, 20);
                 }
 
                 // Draw mushrooms.
@@ -128,7 +130,7 @@ public class Window extends JFrame implements ActionListener{
                 while(it.hasNext()) {
                     Mushroom mush = (Mushroom) it.next();
                     g2d.setColor(new Color(118, 85, 43));
-                    g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 75, 20, 20);
+                    g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 50, 20, 20);
                 }
 
                 // Draw player.
@@ -152,6 +154,24 @@ public class Window extends JFrame implements ActionListener{
                 bullets.add(bullet);
             }
         });
+
+        scr = new JLabel("Score: " + score);
+        scr.setBounds(25, 25, 300, 25);
+        scr.setLocation(25, 25);
+        scr.setFont(new Font("Serif", Font.PLAIN, 25));
+        scr.setHorizontalAlignment(SwingConstants.LEFT);
+        scr.setForeground(Color.red);
+
+        lvs = new JLabel("Lives: " + lives);
+        lvs.setFont(new Font("Serif", Font.PLAIN, 25));
+        lvs.setBounds(325, 25, 300, 25);
+        lvs.setLocation(325, 25);
+        lvs.setHorizontalAlignment(SwingConstants.RIGHT);
+        lvs.setForeground(Color.red);
+
+        panel.setLayout(null);
+        panel.add(scr);
+        panel.add(lvs);
         window.add(panel);
 
         // Initialize game loop.
@@ -172,7 +192,7 @@ public class Window extends JFrame implements ActionListener{
 
     // Initialize the player.
     public static void initPlayer() {
-        player = new Player(325, 605);
+        player = new Player(325, 630);
     }
 
     // Initialize the centipede.
