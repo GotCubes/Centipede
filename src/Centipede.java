@@ -6,8 +6,8 @@ public class Centipede extends Drawable{
 
     public Centipede(int x, int y, Centipede n, boolean h) {
         dir = true;
-        speed = 1;
-        durability = 2;
+        speed = 5;
+        durability = 1;
         row = x;
         col = y;
         next = n;
@@ -25,7 +25,7 @@ public class Centipede extends Drawable{
         // Get next location if head.
         if(head) {
             // Test for collision.
-            if(nxtCol < 0 || nxtCol > 29 || Window.board[row][nxtCol] instanceof Mushroom) {
+            if(nxtCol < 0 || nxtCol > 29 || Window.board[row][nxtCol] instanceof Mushroom || Window.board[row][nxtCol] instanceof Centipede) {
                 if(row == 27) {
                     reverse();
                     return;
@@ -67,10 +67,7 @@ public class Centipede extends Drawable{
             if(curr.prev == null) {
                 curr.head = true;
                 Window.heads.remove(this);
-                Window.segments.remove(curr);
-                Window.segments.add(this);
                 Window.heads.add(curr);
-
             }
 
             curr = curr.prev;
