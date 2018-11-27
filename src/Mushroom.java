@@ -2,7 +2,7 @@ public class Mushroom extends Drawable{
 
     public Mushroom(int x, int y) {
         speed = 1;
-        durability = 2;
+        durability = 3;
         row = x;
         col = y;
     }

@@ -1,6 +1,8 @@
 public class Bullet extends Drawable {
+    public int dy;
+
     public Bullet(int x, int y) {
-        speed = 1;
+        dy = 10;
         row = x;
         col = y;
     }
