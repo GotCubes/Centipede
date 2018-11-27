@@ -15,13 +15,13 @@ public class Window extends JFrame implements ActionListener{
     public static ArrayList mushrooms = new ArrayList();
     public static ArrayList bullets = new ArrayList();
     public static Player player;
-    public static int density;
+    public static int density, score, lives;
 
     public Window() {
         setVisible(true);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(650, 675);
+        setSize(650, 725);
         getContentPane().setBackground(Color.black);
 
         BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
@@ -36,10 +36,11 @@ public class Window extends JFrame implements ActionListener{
 
         // Update player location.
         Point p = MouseInfo.getPointerInfo().getLocation();
+        Point q = getLocationOnScreen();
         if(player.frameCnt == 0) {
             // Contstrain within the game area.
-            player.row = Math.min(Math.max(p.x - 13, 25), 605);
-            player.col = Math.min(Math.max(p.y - 36, 25), 605);
+            player.row = Math.min(Math.max(p.x - q.x - 13, 25), 605);
+            player.col = Math.min(Math.max(p.y - q.y - 36, 75), 655);
         }
         player.frameCnt = (player.frameCnt + 1) % player.speed;
 
@@ -48,7 +49,7 @@ public class Window extends JFrame implements ActionListener{
         while(it.hasNext()) {
             Centipede head = (Centipede) it.next();
             if(head.frameCnt == 0)
-                head.move(null);
+                head.move();
             head.frameCnt = (head.frameCnt + 1) % head.speed;
         }
 
@@ -59,10 +60,10 @@ public class Window extends JFrame implements ActionListener{
             Bullet bullet = (Bullet) it.next();
 
             if(bullet.frameCnt == 0)
-                bullet.col -= 15;
+                bullet.col -= 10;
             bullet.frameCnt = (bullet.frameCnt + 1) % bullet.speed;
 
-            if(bullet.col < 25)
+            if(bullet.col < 75)
                 toRemove.add(bullet);
         }
         bullets.removeAll(toRemove);
@@ -101,17 +102,17 @@ public class Window extends JFrame implements ActionListener{
                 // Set background scenery.
                 Graphics2D g2d = (Graphics2D) g;
                 setOpaque(false);
-                setSize(650, 650);
+                setSize(650, 700);
                 setBackground(Color.black);
                 g2d.setColor(Color.red);
-                g2d.drawRect(25, 25, getWidth() - 50, getHeight() - 50);
+                g2d.drawRect(25, 75, 600, 600);
 
                 // Draw centipede heads.
                 Iterator it = heads.iterator();
                 while(it.hasNext()) {
                     Centipede head = (Centipede) it.next();
                     g2d.setColor(Color.blue);
-                    g2d.fillOval(head.col * 20 + 25, head.row * 20 + 25, 20, 20);
+                    g2d.fillOval(head.col * 20 + 25, head.row * 20 + 75, 20, 20);
                 }
 
                 // Draw centipede segments.
@@ -119,7 +120,7 @@ public class Window extends JFrame implements ActionListener{
                 while(it.hasNext()) {
                     Centipede seg = (Centipede) it.next();
                     g2d.setColor(Color.green);
-                    g2d.fillOval(seg.col * 20 + 25, seg.row * 20 + 25, 20, 20);
+                    g2d.fillOval(seg.col * 20 + 25, seg.row * 20 + 75, 20, 20);
                 }
 
                 // Draw mushrooms.
@@ -127,7 +128,7 @@ public class Window extends JFrame implements ActionListener{
                 while(it.hasNext()) {
                     Mushroom mush = (Mushroom) it.next();
                     g2d.setColor(new Color(118, 85, 43));
-                    g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 25, 20, 20);
+                    g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 75, 20, 20);
                 }
 
                 // Draw player.
@@ -183,6 +184,16 @@ public class Window extends JFrame implements ActionListener{
             segments.add(board[0][i]);
         }
         board[0][11] = new Centipede(0, 11, (Centipede) board[0][10], true);
+
+        Centipede c = (Centipede) board[0][11];
+        c.prev = null;
+        for(int i = 10; i >= 0; i--) {
+            c = (Centipede) board[0][i];
+            c.prev = (Centipede) board[0][i + 1];
+        }
+        c = (Centipede) board[0][0];
+        c.prev = (Centipede) board[0][1];
+
         heads.add(board[0][11]);
     }
 
@@ -192,10 +203,10 @@ public class Window extends JFrame implements ActionListener{
         for(int i = 1; i < (board[0].length - 1); i++) valCols.add(i);
 
         // Iterate through each row in the placeable range.
-        for(int row = 1; row < (board.length  - (board.length / 10)); row++) {
+        for(int row = 1; row < (board.length  - 4); row++) {
             // Get each valid column in the row.
             Iterator it = valCols.iterator();
-            
+
             ArrayList nxtVals = new ArrayList();
             for(int i = 1; i < (board[0].length - 1); i++) nxtVals.add(i);
 
