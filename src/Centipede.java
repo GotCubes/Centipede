@@ -6,7 +6,7 @@ public class Centipede extends Drawable{
 
     public Centipede(int x, int y, Centipede n, boolean h) {
         dir = true;
-        speed = 5;
+        speed = 4;
         durability = 2;
         row = x;
         col = y;
@@ -53,6 +53,7 @@ public class Centipede extends Drawable{
 
     public void reverse() {
         if(this.next == null && this.prev == null) {
+            this.head = true;
             dir = !dir;
         } else {
             Centipede curr = this;

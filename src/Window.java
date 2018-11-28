@@ -5,6 +5,7 @@ import java.awt.image.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Window extends JFrame implements ActionListener{
 
@@ -13,6 +14,7 @@ public class Window extends JFrame implements ActionListener{
     public static ArrayList segments = new ArrayList();
     public static ArrayList mushrooms = new ArrayList();
     public static ArrayList bullets = new ArrayList();
+    public static ArrayList spiders = new ArrayList();
     public static Player player;
     public static ArrayList toReverse = new ArrayList();
     public static int density;
@@ -31,6 +33,7 @@ public class Window extends JFrame implements ActionListener{
     public void testCollisions() {
         ArrayList btoRemove = new ArrayList();
         ArrayList mtoRemove = new ArrayList();
+        ArrayList stoRemove = new ArrayList();
         ArrayList stoSplit = new ArrayList();
 
         Iterator iter = bullets.iterator();
@@ -68,19 +71,20 @@ public class Window extends JFrame implements ActionListener{
                 int cub = (c.row * 20) + 50 + 20;
                 int rlb = (c.col * 20) + 25;
                 int rub = (c.col * 20) + 25 + 20;
-                if(b.col < cub && b.col >= clb) {
-                    if(b.row < rub && b.row >= rlb) {
-                        btoRemove.add(b);
-
+                if(b.col <= cub && b.col >= clb) {
+                    if(b.row <= rub && b.row >= rlb) {
                         // Score points for hitting centipede.
                         if(++c.hitCnt == c.durability) { // Destroyed
-                            if(segments.size() == 1)
+                            if(segments.size() == 1) {
+                                initCentipede();
                                 player.score += 600; // Destroyed entire centipede.
-                            else
+                            } else
                                 player.score += 5;
                             stoSplit.add(c);
                         } else // Hit
                             player.score += 2;
+
+                        btoRemove.add(b);
                     }
                 }
             }
@@ -98,31 +102,54 @@ public class Window extends JFrame implements ActionListener{
                     } else if(c.next == null) { // Ending segment.
                         c.prev.next = null;
                     } else { // Middle segment.
-                        c.next.head = true;
                         c.next.prev = null;
-
-                        c.next.reverse();
                         c.prev.next = null;
+                        c.next.reverse();
                     }
                 }
 
                 segments.remove(c);
                 c = null;
             }
+
+            // Test the spider to see if it was hit.
+            it = spiders.iterator();
+            while(it.hasNext()) {
+                Spider s = (Spider) it.next();
+                if(b.col <= s.col + 20 && b.col >= s.col) {
+                    if(b.row <= s.row + 20 && b.row >= s.row) {
+                        // Score points for hitting spider.
+                        if(++s.hitCnt == s.durability) { // Destroyed
+                            player.score += 600;
+                            stoRemove.add(s);
+                        } else // Hit
+                            player.score += 100;
+
+                        btoRemove.add(b);
+                    }
+                }
+            }
+            spiders.removeAll(stoRemove);
         }
         bullets.removeAll(btoRemove);
 
-        // Test all segments to see if the player hit them.
+        // Test all segments to see if they hit the player.
         player.hit = false;
         iter = segments.iterator();
         while(iter.hasNext()) {
             Centipede c = (Centipede) iter.next();
-            if(c.head) {
-                int cx = (c.col * 20) + 25 + 10;
-                int cy = (c.row * 20) + 50 + 10;
-                if (Math.pow(cx - player.row, 2) + Math.pow(cy - player.col, 2) < 400)
-                    player.hit = true;
-            }
+            int cx = (c.col * 20) + 25 + 10;
+            int cy = (c.row * 20) + 50 + 10;
+            if (Math.pow(cx - player.row, 2) + Math.pow(cy - player.col, 2) < 400)
+                player.hit = true;
+        }
+
+        // Test to see if the spider hit the player.
+        iter = spiders.iterator();
+        while(iter.hasNext()) {
+            Spider s = (Spider) iter.next();
+            if (Math.pow((s.row + 10) - player.row, 2) + Math.pow((s.col + 10) - player.col, 2) < 400)
+                player.hit = true;
         }
 
         // Process getting hit.
@@ -131,7 +158,9 @@ public class Window extends JFrame implements ActionListener{
             if(--player.lives > 0) {
                 restart = true;
                 bullets = new ArrayList();
+
                 initCentipede();
+                initSpider();
                 restoreShrooms();
 
             }else {
@@ -146,9 +175,9 @@ public class Window extends JFrame implements ActionListener{
         if(restart) {
             try { Thread.sleep(1000); }catch(Exception exc){}
 
-            //BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-            //Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank");
-            //getContentPane().setCursor(blankCursor);
+            BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+            Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank");
+            getContentPane().setCursor(blankCursor);
 
             restart = false;
         }
@@ -163,7 +192,6 @@ public class Window extends JFrame implements ActionListener{
         Point q = getLocationOnScreen();
 
         // Constrain within the game area.
-        player.row = Math.min(Math.max(p.x - q.x - 7, 35), 615);
         player.row = Math.min(Math.max(p.x - q.x - 7, 35), 615);
         player.col = Math.min(Math.max(p.y - q.y - 30, 60), 640);
 
@@ -184,6 +212,14 @@ public class Window extends JFrame implements ActionListener{
         while(it.hasNext()) {
             Centipede c = (Centipede) it.next();
             c.reverse();
+        }
+
+        // Update the spider.
+        it = spiders.iterator();
+        while(it.hasNext()) {
+            Spider s = (Spider) it.next();
+            s.move();
+            s.frameCnt = (s.frameCnt + 1) % s.speed;
         }
 
         // Update all bullets.
@@ -222,6 +258,7 @@ public class Window extends JFrame implements ActionListener{
         // Place centipede and mushrooms.
         initPlayer();
         initCentipede();
+        initSpider();
         placeShrooms();
 
         // Initialize window and panel.
@@ -262,6 +299,14 @@ public class Window extends JFrame implements ActionListener{
                         g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 50, 20, 10);
                 }
 
+                // Draw spider;
+                it = spiders.iterator();
+                while(it.hasNext()) {
+                    Spider s = (Spider) it.next();
+                    g2d.setColor(Color.magenta);
+                    g2d.fillOval(s.row, s.col, 20, 20);
+                }
+
                 // Draw player.
                 g2d.setColor(Color.pink);
                 if(!restart)
@@ -283,7 +328,7 @@ public class Window extends JFrame implements ActionListener{
         };
 
         panel.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 Bullet bullet = new Bullet(player.row, player.col - 10);
                 bullets.add(bullet);
             }
@@ -359,6 +404,11 @@ public class Window extends JFrame implements ActionListener{
         }
         c = (Centipede) board[0][0];
         c.prev = (Centipede) board[0][1];
+    }
+
+    public static void initSpider() {
+        spiders = new ArrayList();
+        spiders.add(new Spider(45, 590));
     }
 
     // Place mushrooms on the board according to the density.
