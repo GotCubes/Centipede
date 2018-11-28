@@ -15,6 +15,7 @@ public class Window extends JFrame implements ActionListener{
     public static ArrayList mushrooms = new ArrayList();
     public static ArrayList bullets = new ArrayList();
     public static Player player;
+    public static ArrayList toReverse = new ArrayList();
     public static int density, score, lives;
     public static JLabel scr, lvs;
 
@@ -33,13 +34,13 @@ public class Window extends JFrame implements ActionListener{
     public void testCollisions() {
         ArrayList btoRemove = new ArrayList();
         ArrayList mtoRemove = new ArrayList();
-        ArrayList stoRemove = new ArrayList();
-        ArrayList stoReverse = new ArrayList();
+        ArrayList stoSplit = new ArrayList();
 
         Iterator bull = bullets.iterator();
         while(bull.hasNext()) {
             Bullet b = (Bullet) bull.next();
 
+            // Test all mushrooms to see if they were hit.
             Iterator it = mushrooms.iterator();
             while(it.hasNext()) {
                 Mushroom m = (Mushroom) it.next();
@@ -51,15 +52,18 @@ public class Window extends JFrame implements ActionListener{
                     if(b.row <= rub && b.row >= rlb) {
                         btoRemove.add(b);
 
-                        if(++m.hitCnt == m.durability) {
+                        if(++m.hitCnt == m.durability) { // Destroyed
+                            score += 5;
                             mtoRemove.add(m);
                             board[m.row][m.col] = blank;
-                        }
+                        } else // Hit
+                            score += 1;
                     }
                 }
             }
             mushrooms.removeAll(mtoRemove);
 
+            // Test all centipede segments to see if they were hit.
             it = segments.iterator();
             while(it.hasNext()) {
                 Centipede c = (Centipede) it.next();
@@ -67,25 +71,48 @@ public class Window extends JFrame implements ActionListener{
                 int cub = (c.row * 20) + 50 + 20;
                 int rlb = (c.col * 20) + 25;
                 int rub = (c.col * 20) + 25 + 20;
-                if(b.col <= cub && b.col >= clb) {
-                    if(b.row <= rub && b.row >= rlb) {
+                if(b.col < cub && b.col >= clb) {
+                    if(b.row < rub && b.row >= rlb) {
                         btoRemove.add(b);
 
-                        if(++c.hitCnt == c.durability) {
-                            stoRemove.add(c);
-                            stoReverse.add(c.next);
-                        }
+                        // Score points for hitting centipede.
+                        if(++c.hitCnt == c.durability) { // Destroyed
+                            score += 5;
+                            stoSplit.add(c);
+                            board[c.row][c.col] = blank;
+                        } else // Hit
+                            score += 2;
                     }
                 }
             }
-            segments.removeAll(stoRemove);
 
-            it = stoReverse.iterator();
+            // Split all destroyed segments.
+            it = stoSplit.iterator();
             while(it.hasNext()) {
                 Centipede c = (Centipede) it.next();
 
-                c.prev = null;
-                c.reverse();
+                if(c.next != null || c.prev != null) { // Single segment.
+                    if(c.prev == null) { // Leading segment.
+                        c.next.head = true;
+                        c.next.prev = null;
+
+                        if(!heads.contains(c.next))
+                            heads.add(c.next);
+                    } else if(c.next == null) { // Ending segment.
+                        c.prev.next = null;
+                    } else { // Middle segment.
+                        c.next.head = true;
+                        c.next.prev = null;
+
+                        c.next.reverse();
+                        c.prev.next = null;
+                    }
+                }
+
+                board[c.row][c.col] = blank;
+                segments.remove(c);
+                heads.remove(c);
+                c = null;
             }
         }
         bullets.removeAll(btoRemove);
@@ -106,12 +133,20 @@ public class Window extends JFrame implements ActionListener{
         player.col = Math.min(Math.max(p.y - q.y - 36, 50), 630);
 
         // Update all centipedes.
+        toReverse = new ArrayList();
         Iterator it = heads.iterator();
         while(it.hasNext()) {
             Centipede head = (Centipede) it.next();
             if(head.frameCnt == 0)
                 head.move();
             head.frameCnt = (head.frameCnt + 1) % head.speed;
+        }
+
+        // Reverse all centipedes that require it.
+        it = toReverse.iterator();
+        while(it.hasNext()) {
+            Centipede c = (Centipede) it.next();
+            c.reverse();
         }
 
         // Update all bullets.

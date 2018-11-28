@@ -6,7 +6,7 @@ public class Centipede extends Drawable{
 
     public Centipede(int x, int y, Centipede n, boolean h) {
         dir = true;
-        speed = 5;
+        speed = 4;
         durability = 1;
         row = x;
         col = y;
@@ -25,9 +25,9 @@ public class Centipede extends Drawable{
         // Get next location if head.
         if(head) {
             // Test for collision.
-            if(nxtCol < 0 || nxtCol > 29 || Window.board[row][nxtCol] instanceof Mushroom || Window.board[row][nxtCol] instanceof Centipede) {
+            if(nxtCol < 0 || nxtCol > 29 || Window.board[row][nxtCol] instanceof Mushroom) {
                 if(row == 27) {
-                    reverse();
+                    Window.toReverse.add(this);
                     return;
                 } else {
                     nxtRow = row + 1;
@@ -55,22 +55,32 @@ public class Centipede extends Drawable{
     }
 
     public void reverse() {
-        Centipede curr = this;
-        curr.head = false;
+        if(this.next == null && this.prev == null) {
+            dir = !dir;
+            if(!Window.heads.contains(this))
+                Window.heads.add(this);
+        } else {
+            Window.heads.remove(this);
+            Centipede curr = this;
+            Centipede temp;
+            curr.head = false;
 
-        while(curr != null) {
+            while (curr.next != null) {
+                curr.dir = !curr.dir;
+                temp = curr.next;
+                curr.next = curr.prev;
+                curr.prev = temp;
+                curr = curr.prev;
+            }
+
+            curr.head = true;
             curr.dir = !curr.dir;
-            Centipede temp = curr.next;
+            temp = curr.next;
             curr.next = curr.prev;
             curr.prev = temp;
 
-            if(curr.prev == null) {
-                curr.head = true;
-                Window.heads.remove(this);
-                Window.heads.add(curr);
-            }
-
-            curr = curr.prev;
+            if(!Window.heads.contains(curr))
+                Window.heads.add(curr);;
         }
     }
 }
