@@ -83,7 +83,7 @@ public class Window extends JFrame implements ActionListener{
             it = stoReverse.iterator();
             while(it.hasNext()) {
                 Centipede c = (Centipede) it.next();
-                
+
                 c.prev = null;
                 c.reverse();
             }
