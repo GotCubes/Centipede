@@ -10,14 +10,15 @@ public class Window extends JFrame implements ActionListener{
 
     public static Drawable[][] board = new Drawable[30][30];
     public static Drawable blank = new Drawable();
-    public static ArrayList heads = new ArrayList();
     public static ArrayList segments = new ArrayList();
     public static ArrayList mushrooms = new ArrayList();
     public static ArrayList bullets = new ArrayList();
     public static Player player;
     public static ArrayList toReverse = new ArrayList();
-    public static int density, score, lives;
-    public static JLabel scr, lvs;
+    public static int density;
+    public static JLabel scr, lvs, gameover;
+    public static Timer gameTimer;
+    public static boolean restart;
 
     public Window() {
         setVisible(true);
@@ -25,10 +26,6 @@ public class Window extends JFrame implements ActionListener{
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(665, 710);
         getContentPane().setBackground(Color.black);
-
-        BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-        Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank");
-        getContentPane().setCursor(blankCursor);
     }
 
     public void testCollisions() {
@@ -36,9 +33,9 @@ public class Window extends JFrame implements ActionListener{
         ArrayList mtoRemove = new ArrayList();
         ArrayList stoSplit = new ArrayList();
 
-        Iterator bull = bullets.iterator();
-        while(bull.hasNext()) {
-            Bullet b = (Bullet) bull.next();
+        Iterator iter = bullets.iterator();
+        while(iter.hasNext()) {
+            Bullet b = (Bullet) iter.next();
 
             // Test all mushrooms to see if they were hit.
             Iterator it = mushrooms.iterator();
@@ -53,11 +50,11 @@ public class Window extends JFrame implements ActionListener{
                         btoRemove.add(b);
 
                         if(++m.hitCnt == m.durability) { // Destroyed
-                            score += 5;
+                            player.score += 5;
                             mtoRemove.add(m);
                             board[m.row][m.col] = blank;
                         } else // Hit
-                            score += 1;
+                            player.score += 1;
                     }
                 }
             }
@@ -77,11 +74,13 @@ public class Window extends JFrame implements ActionListener{
 
                         // Score points for hitting centipede.
                         if(++c.hitCnt == c.durability) { // Destroyed
-                            score += 5;
+                            if(segments.size() == 1)
+                                player.score += 600; // Destroyed entire centipede.
+                            else
+                                player.score += 5;
                             stoSplit.add(c);
-                            board[c.row][c.col] = blank;
                         } else // Hit
-                            score += 2;
+                            player.score += 2;
                     }
                 }
             }
@@ -96,8 +95,6 @@ public class Window extends JFrame implements ActionListener{
                         c.next.head = true;
                         c.next.prev = null;
 
-                        if(!heads.contains(c.next))
-                            heads.add(c.next);
                     } else if(c.next == null) { // Ending segment.
                         c.prev.next = null;
                     } else { // Middle segment.
@@ -109,16 +106,53 @@ public class Window extends JFrame implements ActionListener{
                     }
                 }
 
-                board[c.row][c.col] = blank;
                 segments.remove(c);
-                heads.remove(c);
                 c = null;
             }
         }
         bullets.removeAll(btoRemove);
+
+        // Test all segments to see if the player hit them.
+        player.hit = false;
+        iter = segments.iterator();
+        while(iter.hasNext()) {
+            Centipede c = (Centipede) iter.next();
+            if(c.head) {
+                int cx = (c.col * 20) + 25 + 10;
+                int cy = (c.row * 20) + 50 + 10;
+                if (Math.pow(cx - player.row, 2) + Math.pow(cy - player.col, 2) < 400)
+                    player.hit = true;
+            }
+        }
+
+        // Process getting hit.
+        if(player.hit) {
+            getContentPane().setCursor(Cursor.getDefaultCursor());
+            if(--player.lives > 0) {
+                restart = true;
+                bullets = new ArrayList();
+                initCentipede();
+                restoreShrooms();
+
+            }else {
+                gameTimer.stop();
+                gameover.setVisible(true);
+            }
+        }
     }
 
     public void actionPerformed(ActionEvent e) {
+        // Pause temporarily if restarting.
+        if(restart) {
+            try { Thread.sleep(1000); }catch(Exception exc){}
+
+            //BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+            //Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank");
+            //getContentPane().setCursor(blankCursor);
+
+            restart = false;
+        }
+
         // Repaint the panel.
         testCollisions();
         revalidate();
@@ -129,17 +163,20 @@ public class Window extends JFrame implements ActionListener{
         Point q = getLocationOnScreen();
 
         // Constrain within the game area.
-        player.row = Math.min(Math.max(p.x - q.x - 13, 25), 605);
-        player.col = Math.min(Math.max(p.y - q.y - 36, 50), 630);
+        player.row = Math.min(Math.max(p.x - q.x - 7, 35), 615);
+        player.row = Math.min(Math.max(p.x - q.x - 7, 35), 615);
+        player.col = Math.min(Math.max(p.y - q.y - 30, 60), 640);
 
         // Update all centipedes.
         toReverse = new ArrayList();
-        Iterator it = heads.iterator();
+        Iterator it = segments.iterator();
         while(it.hasNext()) {
-            Centipede head = (Centipede) it.next();
-            if(head.frameCnt == 0)
-                head.move();
-            head.frameCnt = (head.frameCnt + 1) % head.speed;
+            Centipede c = (Centipede) it.next();
+            if(c.head) {
+                if (c.frameCnt == 0)
+                    c.move();
+                c.frameCnt = (c.frameCnt + 1) % c.speed;
+            }
         }
 
         // Reverse all centipedes that require it.
@@ -186,8 +223,6 @@ public class Window extends JFrame implements ActionListener{
         initPlayer();
         initCentipede();
         placeShrooms();
-        score = 0;
-        lives = 3;
 
         // Initialize window and panel.
         Window window = new Window();
@@ -202,8 +237,8 @@ public class Window extends JFrame implements ActionListener{
                 g2d.setColor(Color.red);
                 g2d.drawRect(25, 50, 600, 600);
 
-                scr.setText("Score: " + score);
-                lvs.setText("Lives: " + lives);
+                scr.setText("Score: " + player.score);
+                lvs.setText("Lives: " + player.lives);
 
                 // Draw centipede segments.
                 Iterator it = segments.iterator();
@@ -229,7 +264,11 @@ public class Window extends JFrame implements ActionListener{
 
                 // Draw player.
                 g2d.setColor(Color.pink);
-                g2d.fillOval(player.row, player.col, 20, 20);
+                if(!restart)
+                    g2d.fillOval(player.row - 10, player.col - 10, 20, 20);
+                else
+                    g2d.fillOval(325, 630, 20, 20);
+
 
                 // Draw bullets.
                 it = bullets.iterator();
@@ -244,35 +283,45 @@ public class Window extends JFrame implements ActionListener{
         };
 
         panel.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                Bullet bullet = new Bullet(player.row + 10, player.col);
+            public void mouseClicked(MouseEvent e) {
+                Bullet bullet = new Bullet(player.row, player.col - 10);
                 bullets.add(bullet);
             }
         });
 
-        scr = new JLabel("Score: " + score);
+        scr = new JLabel("Score: " + player.score);
         scr.setBounds(25, 25, 300, 25);
         scr.setLocation(25, 25);
-        scr.setFont(new Font("Serif", Font.PLAIN, 25));
+        scr.setFont(new Font("Arial", Font.PLAIN, 25));
         scr.setHorizontalAlignment(SwingConstants.LEFT);
         scr.setForeground(Color.red);
 
-        lvs = new JLabel("Lives: " + lives);
-        lvs.setFont(new Font("Serif", Font.PLAIN, 25));
+        lvs = new JLabel("Lives: " + player.lives);
+        lvs.setFont(new Font("Arial", Font.PLAIN, 25));
         lvs.setBounds(325, 25, 300, 25);
         lvs.setLocation(325, 25);
         lvs.setHorizontalAlignment(SwingConstants.RIGHT);
         lvs.setForeground(Color.red);
 
+        gameover = new JLabel("GAME OVER!");
+        gameover.setFont(new Font("Arial Black", Font.PLAIN, 25));
+        gameover.setBounds(25, 25, 600, 25);
+        gameover.setLocation(25, 25);
+        gameover.setHorizontalAlignment(SwingConstants.CENTER);
+        gameover.setForeground(Color.red);
+        gameover.setVisible(false);
+
         panel.setLayout(null);
         panel.add(scr);
         panel.add(lvs);
+        panel.add(gameover);
         window.add(panel);
 
-        // Initialize game loop.
-        Timer timer = new Timer(17, window);
-        timer.setRepeats(true);
-        timer.start();
+        // Initialize game loop;
+        restart = true;
+        gameTimer = new Timer(17, window);
+        gameTimer.setRepeats(true);
+        gameTimer.start();
     }
 
     public static void printBoard() {
@@ -292,6 +341,7 @@ public class Window extends JFrame implements ActionListener{
 
     // Initialize the centipede.
     public static void initCentipede() {
+        segments = new ArrayList();
         board[0][0] = new Centipede(0, 0, null, false);
         segments.add(board[0][0]);
         for(int i = 1; i < 11; i++) {
@@ -309,8 +359,6 @@ public class Window extends JFrame implements ActionListener{
         }
         c = (Centipede) board[0][0];
         c.prev = (Centipede) board[0][1];
-
-        heads.add(board[0][11]);
     }
 
     // Place mushrooms on the board according to the density.
@@ -339,6 +387,17 @@ public class Window extends JFrame implements ActionListener{
 
             // Update list of valid columns.
             valCols = nxtVals;
+        }
+    }
+
+    public static void restoreShrooms() {
+        Iterator it = mushrooms.iterator();
+        while(it.hasNext()) {
+            Mushroom m = (Mushroom) it.next();
+            if(m.hitCnt != 0) {
+                m.hitCnt = 0;
+                player.score += 10;
+            }
         }
     }
 

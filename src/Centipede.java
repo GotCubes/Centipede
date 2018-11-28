@@ -6,8 +6,8 @@ public class Centipede extends Drawable{
 
     public Centipede(int x, int y, Centipede n, boolean h) {
         dir = true;
-        speed = 4;
-        durability = 1;
+        speed = 5;
+        durability = 2;
         row = x;
         col = y;
         next = n;
@@ -42,12 +42,9 @@ public class Centipede extends Drawable{
             nxtCol = prev.col;
         }
 
-        // Recursively move all segments in the centipede, and update board.
-        if(next != null) {
+        // Recursively move all segments in the centipede.
+        if(next != null)
             next.move();
-            Window.board[nxtRow][nxtCol] = this;
-        } else
-            Window.board[row][col] = Window.blank;
 
         // Update segment location.
         row = nxtRow;
@@ -57,10 +54,7 @@ public class Centipede extends Drawable{
     public void reverse() {
         if(this.next == null && this.prev == null) {
             dir = !dir;
-            if(!Window.heads.contains(this))
-                Window.heads.add(this);
         } else {
-            Window.heads.remove(this);
             Centipede curr = this;
             Centipede temp;
             curr.head = false;
@@ -78,9 +72,6 @@ public class Centipede extends Drawable{
             temp = curr.next;
             curr.next = curr.prev;
             curr.prev = temp;
-
-            if(!Window.heads.contains(curr))
-                Window.heads.add(curr);;
         }
     }
 }
