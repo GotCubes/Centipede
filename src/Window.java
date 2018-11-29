@@ -281,8 +281,9 @@ public class Window extends JFrame implements ActionListener{
         initSpider();
         placeShrooms();
 
+        // Get audio sound clip.
         try {
-            File pewFile = new File("pew.wav");
+            File pewFile = new File("oof.wav");
             AudioInputStream pewStream = AudioSystem.getAudioInputStream(pewFile);
             pew = AudioSystem.getClip();
             pew.open(pewStream);
