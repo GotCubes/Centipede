@@ -77,6 +77,9 @@ public class Window extends JFrame implements ActionListener{
                         if(++c.hitCnt == c.durability) { // Destroyed
                             if(segments.size() == 1) {
                                 initCentipede();
+                                if(spiders.size() == 0)
+                                    initSpider();
+                                
                                 player.score += 600; // Destroyed entire centipede.
                             } else
                                 player.score += 5;
