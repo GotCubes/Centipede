@@ -5,7 +5,8 @@ import java.awt.image.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
+import java.io.File;
+import javax.sound.sampled.*;
 
 public class Window extends JFrame implements ActionListener{
 
@@ -21,7 +22,9 @@ public class Window extends JFrame implements ActionListener{
     public static JLabel scr, lvs, gameover;
     public static Timer gameTimer;
     public static boolean restart;
+    public static Clip pew;
 
+    // Initialize window.
     public Window() {
         setVisible(true);
         setResizable(false);
@@ -30,12 +33,14 @@ public class Window extends JFrame implements ActionListener{
         getContentPane().setBackground(Color.black);
     }
 
+    // Test to see if any collisions occurred in the frame.
     public void testCollisions() {
         ArrayList btoRemove = new ArrayList();
         ArrayList mtoRemove = new ArrayList();
         ArrayList stoRemove = new ArrayList();
         ArrayList stoSplit = new ArrayList();
 
+        // Iterate through all existing bullets.
         Iterator iter = bullets.iterator();
         while(iter.hasNext()) {
             Bullet b = (Bullet) iter.next();
@@ -50,14 +55,15 @@ public class Window extends JFrame implements ActionListener{
                 int rub = (m.col * 20) + 25 + 20;
                 if(b.col <= cub && b.col >= clb) {
                     if(b.row <= rub && b.row >= rlb) {
-                        btoRemove.add(b);
-
+                        // Mushroom was hit.
                         if(++m.hitCnt == m.durability) { // Destroyed
                             player.score += 5;
                             mtoRemove.add(m);
                             board[m.row][m.col] = blank;
                         } else // Hit
                             player.score += 1;
+
+                        btoRemove.add(b);
                     }
                 }
             }
@@ -79,7 +85,6 @@ public class Window extends JFrame implements ActionListener{
                                 initCentipede();
                                 if(spiders.size() == 0)
                                     initSpider();
-                                
                                 player.score += 600; // Destroyed entire centipede.
                             } else
                                 player.score += 5;
@@ -96,7 +101,6 @@ public class Window extends JFrame implements ActionListener{
             it = stoSplit.iterator();
             while(it.hasNext()) {
                 Centipede c = (Centipede) it.next();
-
                 if(c.next != null || c.prev != null) { // Single segment.
                     if(c.prev == null) { // Leading segment.
                         c.next.head = true;
@@ -111,6 +115,7 @@ public class Window extends JFrame implements ActionListener{
                     }
                 }
 
+                // Remove all references to the segment.
                 segments.remove(c);
                 c = null;
             }
@@ -143,6 +148,8 @@ public class Window extends JFrame implements ActionListener{
             Centipede c = (Centipede) iter.next();
             int cx = (c.col * 20) + 25 + 10;
             int cy = (c.row * 20) + 50 + 10;
+
+            // Player runs into a centipede segment.
             if (Math.pow(cx - player.row, 2) + Math.pow(cy - player.col, 2) < 400)
                 player.hit = true;
         }
@@ -151,6 +158,8 @@ public class Window extends JFrame implements ActionListener{
         iter = spiders.iterator();
         while(iter.hasNext()) {
             Spider s = (Spider) iter.next();
+
+            // Player runs into the spider.
             if (Math.pow((s.row + 10) - player.row, 2) + Math.pow((s.col + 10) - player.col, 2) < 400)
                 player.hit = true;
         }
@@ -158,15 +167,16 @@ public class Window extends JFrame implements ActionListener{
         // Process getting hit.
         if(player.hit) {
             getContentPane().setCursor(Cursor.getDefaultCursor());
-            if(--player.lives > 0) {
+            if(--player.lives > 0) { // Player has lives remaining.
+                // Reset the screen.
                 restart = true;
-                bullets = new ArrayList();
 
+                // Move components back to their starting locations.
+                bullets = new ArrayList();
                 initCentipede();
                 initSpider();
                 restoreShrooms();
-
-            }else {
+            }else { // Game ends.
                 gameTimer.stop();
                 gameover.setVisible(true);
             }
@@ -176,12 +186,15 @@ public class Window extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         // Pause temporarily if restarting.
         if(restart) {
+            // Allow player to adjust.
             try { Thread.sleep(1000); }catch(Exception exc){}
 
+            // Reset invisible cursor.
             BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
             Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank");
             getContentPane().setCursor(blankCursor);
 
+            // De-assert restart flag.
             restart = false;
         }
 
@@ -203,11 +216,13 @@ public class Window extends JFrame implements ActionListener{
         Iterator it = segments.iterator();
         while(it.hasNext()) {
             Centipede c = (Centipede) it.next();
+
+            // Move heads forward.
             if(c.head) {
                 if (c.frameCnt == 0)
                     c.move();
-                c.frameCnt = (c.frameCnt + 1) % c.speed;
             }
+            c.frameCnt = (c.frameCnt + 1) % c.speed;
         }
 
         // Reverse all centipedes that require it.
@@ -229,9 +244,11 @@ public class Window extends JFrame implements ActionListener{
         it = bullets.iterator();
         ArrayList toRemove = new ArrayList();
         while(it.hasNext()) {
+            // Move bullets up the screen,
             Bullet bullet = (Bullet) it.next();
             bullet.col -= bullet.dy;
 
+            // Delete bullets that go out of bounds.
             if(bullet.col < 50)
                 toRemove.add(bullet);
         }
@@ -263,6 +280,15 @@ public class Window extends JFrame implements ActionListener{
         initCentipede();
         initSpider();
         placeShrooms();
+
+        try {
+            File pewFile = new File("pew.wav");
+            AudioInputStream pewStream = AudioSystem.getAudioInputStream(pewFile);
+            pew = AudioSystem.getClip();
+            pew.open(pewStream);
+            FloatControl volume = (FloatControl) pew.getControl(FloatControl.Type.MASTER_GAIN);
+            volume.setValue(-20.0f);
+        } catch(Exception e) {}
 
         // Initialize window and panel.
         Window window = new Window();
@@ -332,8 +358,15 @@ public class Window extends JFrame implements ActionListener{
 
         panel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                Bullet bullet = new Bullet(player.row, player.col - 10);
-                bullets.add(bullet);
+                if(player.lives > 0) {
+                    if (pew.isRunning())
+                        pew.stop();
+                    pew.setFramePosition(0);
+                    pew.start();
+
+                    Bullet bullet = new Bullet(player.row, player.col - 10);
+                    bullets.add(bullet);
+                }
             }
         });
 
