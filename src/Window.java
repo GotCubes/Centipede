@@ -7,22 +7,24 @@ import java.util.Iterator;
 import java.util.Random;
 import java.io.File;
 import javax.sound.sampled.*;
+import javax.imageio.*;
 
 public class Window extends JFrame implements ActionListener{
 
     public static Drawable[][] board = new Drawable[30][30];
     public static Drawable blank = new Drawable();
+    public static ArrayList centipedes = new ArrayList();
     public static ArrayList segments = new ArrayList();
     public static ArrayList mushrooms = new ArrayList();
     public static ArrayList bullets = new ArrayList();
     public static ArrayList spiders = new ArrayList();
     public static Player player;
-    public static ArrayList toReverse = new ArrayList();
     public static int density;
     public static JLabel scr, lvs, gameover;
     public static Timer gameTimer;
     public static boolean restart;
     public static Clip pew;
+    public static BufferedImage pSprite;
 
     // Initialize window.
     public Window() {
@@ -38,16 +40,18 @@ public class Window extends JFrame implements ActionListener{
         ArrayList btoRemove = new ArrayList();
         ArrayList mtoRemove = new ArrayList();
         ArrayList stoRemove = new ArrayList();
-        ArrayList stoSplit = new ArrayList();
+        ArrayList ctoSplit = new ArrayList();
+        ArrayList itoSplit = new ArrayList();
+        boolean used = false;
 
         // Iterate through all existing bullets.
         Iterator iter = bullets.iterator();
-        while(iter.hasNext()) {
+        while(iter.hasNext() && !used) {
             Bullet b = (Bullet) iter.next();
 
             // Test all mushrooms to see if they were hit.
             Iterator it = mushrooms.iterator();
-            while(it.hasNext()) {
+            while(it.hasNext() && !used) {
                 Mushroom m = (Mushroom) it.next();
                 int clb = (m.row * 20) + 50;
                 int cub = (m.row * 20) + 50 + 20;
@@ -69,60 +73,74 @@ public class Window extends JFrame implements ActionListener{
             }
             mushrooms.removeAll(mtoRemove);
 
-            // Test all centipede segments to see if they were hit.
-            it = segments.iterator();
-            while(it.hasNext()) {
-                Centipede c = (Centipede) it.next();
-                int clb = (c.row * 20) + 50;
-                int cub = (c.row * 20) + 50 + 20;
-                int rlb = (c.col * 20) + 25;
-                int rub = (c.col * 20) + 25 + 20;
-                if(b.col <= cub && b.col >= clb) {
-                    if(b.row <= rub && b.row >= rlb) {
-                        // Score points for hitting centipede.
-                        if(++c.hitCnt == c.durability) { // Destroyed
-                            if(segments.size() == 1) {
-                                initCentipede();
-                                if(spiders.size() == 0)
+            it = centipedes.iterator();
+            while(it.hasNext() && !used) {
+                ArrayList c = (ArrayList) it.next();
+                Iterator it2 = c.iterator();
+                while(it2.hasNext() && !used) {
+                    Centipede s = (Centipede) it2.next();
+                    int clb = (s.row * 20) + 50;
+                    int cub = (s.row * 20) + 50 + 20;
+                    int rlb = (s.col * 20) + 25;
+                    int rub = (s.col * 20) + 25 + 20;
+                    if(b.col <= cub && b.col >= clb) {
+                        if(b.row <= rub && b.row >= rlb) {
+                            // Score points for hitting centipede.
+                            if(++s.hitCnt == s.durability) { // Destroyed
+                                if(centipedes.size() == 1 && c.size() == 1) {
+                                    initCentipede();
                                     initSpider();
-                                player.score += 600; // Destroyed entire centipede.
-                            } else
-                                player.score += 5;
-                            stoSplit.add(c);
-                        } else // Hit
-                            player.score += 2;
+                                    if(spiders.size() == 0)
+                                        initSpider();
+                                    player.score += 600; // Destroyed entire centipede.
+                                } else
+                                    player.score += 5;
+                                ctoSplit.add(c);
+                                itoSplit.add(c.indexOf(s));
+                            } else // Hit
+                                player.score += 2;
 
-                        btoRemove.add(b);
+                            btoRemove.add(b);
+                            used = true;
+                        }
                     }
                 }
             }
 
             // Split all destroyed segments.
-            it = stoSplit.iterator();
-            while(it.hasNext()) {
-                Centipede c = (Centipede) it.next();
-                if(c.next != null || c.prev != null) { // Single segment.
-                    if(c.prev == null) { // Leading segment.
-                        c.next.head = true;
-                        c.next.prev = null;
+            it = ctoSplit.iterator();
+            Iterator it2 = itoSplit.iterator();
+            while(it.hasNext() && it2.hasNext()) {
+                ArrayList c = (ArrayList) it.next();
+                int index = (int) it2.next();
 
-                    } else if(c.next == null) { // Ending segment.
-                        c.prev.next = null;
-                    } else { // Middle segment.
-                        c.next.prev = null;
-                        c.prev.next = null;
-                        c.next.reverse();
+                Centipede s = (Centipede) c.get(index);
+                if(s.head) { // Head
+                    if(c.size() == 1) { // Single segment.
+                        c.clear();
+                        centipedes.remove(c);
+                    } else { // Head of existing centipede.
+                        s = (Centipede) c.get(index - 1);
+                        s.head = true;
+                        c.remove(index);
                     }
-                }
+                } else if(index == 0) // Tail
+                    c.remove(index);
+                else { // Middle
+                    s = (Centipede) c.get(index - 1);
+                    s.head = true;
+                    s.dir = !s.dir;
 
-                // Remove all references to the segment.
-                segments.remove(c);
-                c = null;
+                    ArrayList c2 = new ArrayList(c.subList(0, index));
+                    centipedes.add(c2);
+
+                    c.subList(0, index + 1).clear();
+                }
             }
 
             // Test the spider to see if it was hit.
             it = spiders.iterator();
-            while(it.hasNext()) {
+            while(it.hasNext() && !used) {
                 Spider s = (Spider) it.next();
                 if(b.col <= s.col + 20 && b.col >= s.col) {
                     if(b.row <= s.row + 20 && b.row >= s.row) {
@@ -143,15 +161,19 @@ public class Window extends JFrame implements ActionListener{
 
         // Test all segments to see if they hit the player.
         player.hit = false;
-        iter = segments.iterator();
+        iter = centipedes.iterator();
         while(iter.hasNext()) {
-            Centipede c = (Centipede) iter.next();
-            int cx = (c.col * 20) + 25 + 10;
-            int cy = (c.row * 20) + 50 + 10;
+            ArrayList c = (ArrayList) iter.next();
+            Iterator iter2 = c.iterator();
+            while(iter2.hasNext()) {
+                Centipede s = (Centipede) iter2.next();
+                int cx = (s.col * 20) + 25 + 10;
+                int cy = (s.row * 20) + 50 + 10;
 
-            // Player runs into a centipede segment.
-            if (Math.pow(cx - player.row, 2) + Math.pow(cy - player.col, 2) < 400)
-                player.hit = true;
+                // Player runs into a centipede segment.
+                if (Math.pow(cx - player.row, 2) + Math.pow(cy - player.col, 2) < 400)
+                    player.hit = true;
+            }
         }
 
         // Test to see if the spider hit the player.
@@ -172,7 +194,7 @@ public class Window extends JFrame implements ActionListener{
                 restart = true;
 
                 // Move components back to their starting locations.
-                bullets = new ArrayList();
+                bullets.clear();
                 initCentipede();
                 initSpider();
                 restoreShrooms();
@@ -211,25 +233,17 @@ public class Window extends JFrame implements ActionListener{
         player.row = Math.min(Math.max(p.x - q.x - 7, 35), 615);
         player.col = Math.min(Math.max(p.y - q.y - 30, 60), 640);
 
-        // Update all centipedes.
-        toReverse = new ArrayList();
-        Iterator it = segments.iterator();
+        Iterator it = centipedes.iterator();
         while(it.hasNext()) {
-            Centipede c = (Centipede) it.next();
-
-            // Move heads forward.
-            if(c.head) {
-                if (c.frameCnt == 0)
-                    c.move();
+            ArrayList c = (ArrayList) it.next();
+            Iterator it2 = c.iterator();
+            while(it2.hasNext()) {
+                Centipede s = (Centipede) it2.next();
+                Centipede parent = s.head ? null : (Centipede) c.get(c.indexOf(s) + 1);
+                if(s.frameCnt == 0)
+                    s.move(parent);
+                s.frameCnt = (s.frameCnt + 1) % s.speed;
             }
-            c.frameCnt = (c.frameCnt + 1) % c.speed;
-        }
-
-        // Reverse all centipedes that require it.
-        it = toReverse.iterator();
-        while(it.hasNext()) {
-            Centipede c = (Centipede) it.next();
-            c.reverse();
         }
 
         // Update the spider.
@@ -291,6 +305,10 @@ public class Window extends JFrame implements ActionListener{
             volume.setValue(-20.0f);
         } catch(Exception e) {}
 
+        try {
+            pSprite = ImageIO.read(new File("oof.png"));
+        } catch (Exception e) {}
+
         // Initialize window and panel.
         Window window = new Window();
         JPanel panel = new JPanel() {
@@ -307,12 +325,15 @@ public class Window extends JFrame implements ActionListener{
                 scr.setText("Score: " + player.score);
                 lvs.setText("Lives: " + player.lives);
 
-                // Draw centipede segments.
-                Iterator it = segments.iterator();
+                Iterator it = centipedes.iterator();
                 while(it.hasNext()) {
-                    Centipede seg = (Centipede) it.next();
-                    g2d.setColor(seg.head ? Color.blue : Color.green);
-                    g2d.fillOval(seg.col * 20 + 25, seg.row * 20 + 50, 20, 20);
+                    ArrayList c = (ArrayList) it.next();
+                    Iterator it2 = c.iterator();
+                    while(it2.hasNext()) {
+                        Centipede s = (Centipede) it2.next();
+                        g2d.setColor(s.head ? Color.blue : Color.green);
+                        g2d.fillOval(s.col * 20 + 25, s.row * 20 + 50, 20, 20);
+                    }
                 }
 
                 // Draw mushrooms.
@@ -338,11 +359,11 @@ public class Window extends JFrame implements ActionListener{
                 }
 
                 // Draw player.
-                g2d.setColor(Color.pink);
                 if(!restart)
-                    g2d.fillOval(player.row - 10, player.col - 10, 20, 20);
+                    g2d.drawImage(pSprite, player.row - 10, player.col - 10, this);
                 else
-                    g2d.fillOval(325, 630, 20, 20);
+                    g2d.drawImage(pSprite, 325, 630, this);
+
 
 
                 // Draw bullets.
@@ -423,28 +444,16 @@ public class Window extends JFrame implements ActionListener{
 
     // Initialize the centipede.
     public static void initCentipede() {
-        segments = new ArrayList();
-        board[0][0] = new Centipede(0, 0, null, false);
-        segments.add(board[0][0]);
-        for(int i = 1; i < 11; i++) {
-            board[0][i] = new Centipede(0, i, (Centipede) board[0][i - 1], false);
-            segments.add(board[0][i]);
-        }
-        board[0][11] = new Centipede(0, 11, (Centipede) board[0][10], true);
-        segments.add(board[0][11]);
+        centipedes.clear();
+        ArrayList c = new ArrayList();
 
-        Centipede c = (Centipede) board[0][11];
-        c.prev = null;
-        for(int i = 10; i >= 0; i--) {
-            c = (Centipede) board[0][i];
-            c.prev = (Centipede) board[0][i + 1];
-        }
-        c = (Centipede) board[0][0];
-        c.prev = (Centipede) board[0][1];
+        for(int i = 0; i < 12; i++)
+            c.add(new Centipede(0, 29 - i,i == 11));
+        centipedes.add(c);
     }
 
     public static void initSpider() {
-        spiders = new ArrayList();
+        spiders.clear();
         spiders.add(new Spider(45, 590));
     }
 
