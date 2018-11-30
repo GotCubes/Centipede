@@ -318,6 +318,7 @@ public class Game extends JFrame implements ActionListener{
         centipedes.add(c);
     }
 
+    // Initialize the spider.
     public static void initSpider() {
         spiders.clear();
         spiders.add(new Spider(45, 590));

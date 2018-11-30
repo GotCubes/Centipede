@@ -2,22 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7d7dbbe2-c7dc-4b59-954c-03adcb735622" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Screen.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Sound.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/SoundManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Centipede/Centipede.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Centipede/Centipede.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Centipede/Window$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Centipede/Window$2.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Centipede/Window.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Bullet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Bullet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Centipede.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Centipede.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Drawable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Drawable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Mushroom.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Mushroom.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Player.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Spider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Spider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SpriteManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SpriteManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Window.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -72,12 +57,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="21349" />
+          <entry key="java" value="21378" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="21349" />
+          <entry key="JAVA" value="21378" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -137,8 +122,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Game.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="213">
-              <caret line="72" column="28" selection-start-line="72" selection-start-column="28" selection-end-line="72" selection-end-column="28" />
+            <state relative-caret-position="468">
+              <caret line="320" column="29" selection-start-line="320" selection-start-column="29" selection-end-line="320" selection-end-column="29" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#Game#0;class#Game#0" />
@@ -374,7 +359,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543553218780" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543553303763" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
@@ -582,8 +567,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Game.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="213">
-          <caret line="72" column="28" selection-start-line="72" selection-start-column="28" selection-end-line="72" selection-end-column="28" />
+        <state relative-caret-position="468">
+          <caret line="320" column="29" selection-start-line="320" selection-start-column="29" selection-end-line="320" selection-end-column="29" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#Game#0;class#Game#0" />
