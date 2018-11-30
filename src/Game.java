@@ -330,7 +330,7 @@ public class Game extends JFrame implements ActionListener{
         for(int i = 1; i < (board[0].length - 1); i++) valCols.add(i);
 
         // Iterate through each row in the placeable range.
-        for(int row = 1; row < (board.length  - 4); row++) {
+        for(int row = 1; row < (board.length  - 3); row++) {
             // Get each valid column in the row.
             Iterator it = valCols.iterator();
 

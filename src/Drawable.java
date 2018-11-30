@@ -7,4 +7,5 @@ public class Drawable {
         hitCnt = 0;
         speed = 1;
     }
+
 }
