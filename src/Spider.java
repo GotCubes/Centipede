@@ -1,4 +1,5 @@
 public class Spider extends Drawable {
+
     public int dx, dy;
 
     public Spider(int x, int y) {
@@ -20,5 +21,6 @@ public class Spider extends Drawable {
 
         row = Math.min(Math.max(row + dx, 25), 605);
         col = Math.min(Math.max(col + dy, 315), 630);
+        frameCnt = (frameCnt + 1) % speed;
     }
 }

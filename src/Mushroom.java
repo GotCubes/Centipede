@@ -5,7 +5,4 @@ public class Mushroom extends Drawable{
         row = x;
         col = y;
     }
-
-    @Override
-    public String toString() { return "\u25A0"; }
 }

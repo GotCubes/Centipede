@@ -1,4 +1,7 @@
+import java.awt.*;
+
 public class Player extends Drawable{
+
     public int lives, score;
     public boolean hit;
 
@@ -11,6 +14,12 @@ public class Player extends Drawable{
         hit = false;
     }
 
-    @Override
-    public String toString() { return "\uD83D\uDE80"; }
+    public void move(Point q) {
+        // Get mouse location.
+        Point p = MouseInfo.getPointerInfo().getLocation();
+
+        // Constrain within the game area.
+        row = Math.min(Math.max(p.x - q.x - 7, 35), 615);
+        col = Math.min(Math.max(p.y - q.y - 30, 60), 640);
+    }
 }
