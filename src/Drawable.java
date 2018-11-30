@@ -9,5 +9,5 @@ public class Drawable {
     }
 
     @Override
-    public String toString() { return 	"\u25A1"; }
+    public String toString() { return "\u25A1"; }
 }

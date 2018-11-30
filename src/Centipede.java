@@ -13,8 +13,7 @@ public class Centipede extends Drawable {
     }
 
     @Override
-    public String toString() {
-        return head ? "\u263A" : "\u25CF";}
+    public String toString() { return head ? "\u263A" : "\u25CF";}
 
     public void move(Centipede parent) {
         // Get next location if head.

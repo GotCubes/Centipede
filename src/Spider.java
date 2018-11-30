@@ -8,6 +8,9 @@ public class Spider extends Drawable {
         col = y;
     }
 
+    @Override
+    public String toString() { return "\uD83D\uDD77"; }
+
     public void move() {
         if(frameCnt == 0) {
             int x = 25 + (int) (Math.random() * ((605 - 25) + 1));

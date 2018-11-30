@@ -22,8 +22,8 @@ public class Window extends JFrame implements ActionListener{
     public static JLabel scr, lvs, gameover;
     public static Timer gameTimer;
     public static boolean restart;
+    public static SpriteManager sprites = new SpriteManager();
     public static Clip pew;
-    public static BufferedImage bodySprite, bulletSprite, headSprite, mushSprite0, mushSprite1, mushSprite2, playerSprite, spiderSprite;
 
     // Initialize window.
     public Window() {
@@ -305,16 +305,7 @@ public class Window extends JFrame implements ActionListener{
         } catch(Exception e) {}
 
         // Load sprites.
-        try {
-            bodySprite = ImageIO.read(new File("bodySprite.png"));
-            bulletSprite = ImageIO.read(new File("bulletSprite.png"));
-            headSprite = ImageIO.read(new File("headSprite.png"));
-            mushSprite0 = ImageIO.read(new File("mushSprite0.png"));
-            mushSprite1 = ImageIO.read(new File("mushSprite1.png"));
-            mushSprite2 = ImageIO.read(new File("mushSprite2.png"));
-            playerSprite = ImageIO.read(new File("playerSprite.png"));
-            spiderSprite = ImageIO.read(new File("spiderSprite.png"));
-        } catch (Exception e) {}
+
 
         // Initialize window and panel.
         Window window = new Window();
@@ -338,7 +329,7 @@ public class Window extends JFrame implements ActionListener{
                     Iterator it2 = c.iterator();
                     while(it2.hasNext()) {
                         Centipede s = (Centipede) it2.next();
-                        g2d.drawImage(s.head ? headSprite : bodySprite, s.col * 20 + 25, s.row * 20 + 50, this);
+                        g2d.drawImage(s.head ? sprites.headSprite : sprites.bodySprite, s.col * 20 + 25, s.row * 20 + 50, this);
                     }
                 }
 
@@ -348,32 +339,32 @@ public class Window extends JFrame implements ActionListener{
                     Mushroom mush = (Mushroom) it.next();
 
                     if(mush.hitCnt == 0)
-                        g2d.drawImage(mushSprite0, mush.col * 20 + 25, mush.row * 20 + 50, this);
+                        g2d.drawImage(sprites.mushSprite0, mush.col * 20 + 25, mush.row * 20 + 50, this);
                     else if(mush.hitCnt == 1)
-                        g2d.drawImage(mushSprite1, mush.col * 20 + 25, mush.row * 20 + 50, this);
+                        g2d.drawImage(sprites.mushSprite1, mush.col * 20 + 25, mush.row * 20 + 50, this);
                     else if(mush.hitCnt == 2)
-                        g2d.drawImage(mushSprite2, mush.col * 20 + 25, mush.row * 20 + 50, this);
+                        g2d.drawImage(sprites.mushSprite2, mush.col * 20 + 25, mush.row * 20 + 50, this);
                 }
 
                 // Draw spider;
                 it = spiders.iterator();
                 while(it.hasNext()) {
                     Spider s = (Spider) it.next();
-                    g2d.drawImage(spiderSprite, s.row, s.col, this);
+                    g2d.drawImage(sprites.spiderSprite, s.row, s.col, this);
                 }
 
                 // Draw bullets.
                 it = bullets.iterator();
                 while(it.hasNext()) {
                     Bullet bullet = (Bullet) it.next();
-                    g2d.drawImage(bulletSprite, bullet.row - 3, bullet.col, this);
+                    g2d.drawImage(sprites.bulletSprite, bullet.row - 3, bullet.col, this);
                 }
 
                 // Draw player.
                 if(!restart)
-                    g2d.drawImage(playerSprite, player.row - 10, player.col - 10, this);
+                    g2d.drawImage(sprites.playerSprite, player.row - 10, player.col - 10, this);
                 else
-                    g2d.drawImage(playerSprite, 325, 630, this);
+                    g2d.drawImage(sprites.playerSprite, 325, 630, this);
             }
         };
 
