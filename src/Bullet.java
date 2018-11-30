@@ -1,12 +1,14 @@
 public class Bullet extends Drawable {
-    public int dy;
 
     public Bullet(int x, int y) {
-        dy = 15;
         row = x;
         col = y;
     }
 
-    @Override
-    public String toString() { return "\u007C"; }
+    public boolean move() {
+        col -= 15;
+
+        // Delete bullets that go out of bounds.
+        return col < 50;
+    }
 }

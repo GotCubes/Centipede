@@ -7,7 +7,4 @@ public class Drawable {
         hitCnt = 0;
         speed = 1;
     }
-
-    @Override
-    public String toString() { return "\u25A1"; }
 }

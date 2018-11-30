@@ -3,6 +3,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class SpriteManager {
+
     public BufferedImage    bodySprite,
                             bulletSprite,
                             headSprite,
