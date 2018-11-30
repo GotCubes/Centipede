@@ -14,7 +14,6 @@ public class Window extends JFrame implements ActionListener{
     public static Drawable[][] board = new Drawable[30][30];
     public static Drawable blank = new Drawable();
     public static ArrayList centipedes = new ArrayList();
-    public static ArrayList segments = new ArrayList();
     public static ArrayList mushrooms = new ArrayList();
     public static ArrayList bullets = new ArrayList();
     public static ArrayList spiders = new ArrayList();
@@ -24,7 +23,7 @@ public class Window extends JFrame implements ActionListener{
     public static Timer gameTimer;
     public static boolean restart;
     public static Clip pew;
-    public static BufferedImage pSprite;
+    public static BufferedImage bodySprite, bulletSprite, headSprite, mushSprite0, mushSprite1, mushSprite2, playerSprite, spiderSprite;
 
     // Initialize window.
     public Window() {
@@ -305,8 +304,16 @@ public class Window extends JFrame implements ActionListener{
             volume.setValue(-20.0f);
         } catch(Exception e) {}
 
+        // Load sprites.
         try {
-            pSprite = ImageIO.read(new File("oof.png"));
+            bodySprite = ImageIO.read(new File("bodySprite.png"));
+            bulletSprite = ImageIO.read(new File("bulletSprite.png"));
+            headSprite = ImageIO.read(new File("headSprite.png"));
+            mushSprite0 = ImageIO.read(new File("mushSprite0.png"));
+            mushSprite1 = ImageIO.read(new File("mushSprite1.png"));
+            mushSprite2 = ImageIO.read(new File("mushSprite2.png"));
+            playerSprite = ImageIO.read(new File("playerSprite.png"));
+            spiderSprite = ImageIO.read(new File("spiderSprite.png"));
         } catch (Exception e) {}
 
         // Initialize window and panel.
@@ -331,8 +338,7 @@ public class Window extends JFrame implements ActionListener{
                     Iterator it2 = c.iterator();
                     while(it2.hasNext()) {
                         Centipede s = (Centipede) it2.next();
-                        g2d.setColor(s.head ? Color.blue : Color.green);
-                        g2d.fillOval(s.col * 20 + 25, s.row * 20 + 50, 20, 20);
+                        g2d.drawImage(s.head ? headSprite : bodySprite, s.col * 20 + 25, s.row * 20 + 50, this);
                     }
                 }
 
@@ -340,41 +346,34 @@ public class Window extends JFrame implements ActionListener{
                 it = mushrooms.iterator();
                 while(it.hasNext()) {
                     Mushroom mush = (Mushroom) it.next();
-                    g2d.setColor(new Color(118, 85, 43));
 
                     if(mush.hitCnt == 0)
-                        g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 50, 20, 20);
+                        g2d.drawImage(mushSprite0, mush.col * 20 + 25, mush.row * 20 + 50, this);
                     else if(mush.hitCnt == 1)
-                        g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 50, 20, 15);
+                        g2d.drawImage(mushSprite1, mush.col * 20 + 25, mush.row * 20 + 50, this);
                     else if(mush.hitCnt == 2)
-                        g2d.fillRect(mush.col * 20 + 25, mush.row * 20 + 50, 20, 10);
+                        g2d.drawImage(mushSprite2, mush.col * 20 + 25, mush.row * 20 + 50, this);
                 }
 
                 // Draw spider;
                 it = spiders.iterator();
                 while(it.hasNext()) {
                     Spider s = (Spider) it.next();
-                    g2d.setColor(Color.magenta);
-                    g2d.fillOval(s.row, s.col, 20, 20);
+                    g2d.drawImage(spiderSprite, s.row, s.col, this);
                 }
-
-                // Draw player.
-                if(!restart)
-                    g2d.drawImage(pSprite, player.row - 10, player.col - 10, this);
-                else
-                    g2d.drawImage(pSprite, 325, 630, this);
-
-
 
                 // Draw bullets.
                 it = bullets.iterator();
                 while(it.hasNext()) {
                     Bullet bullet = (Bullet) it.next();
-
-                    g2d.setStroke(new BasicStroke(3));
-                    g2d.setColor(Color.yellow);
-                    g2d.drawLine(bullet.row, bullet.col, bullet.row, bullet.col + 10);
+                    g2d.drawImage(bulletSprite, bullet.row - 3, bullet.col, this);
                 }
+
+                // Draw player.
+                if(!restart)
+                    g2d.drawImage(playerSprite, player.row - 10, player.col - 10, this);
+                else
+                    g2d.drawImage(playerSprite, 325, 630, this);
             }
         };
 

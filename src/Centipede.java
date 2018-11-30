@@ -5,7 +5,7 @@ public class Centipede extends Drawable {
 
     public Centipede(int x, int y, boolean h) {
         dir = false;
-        speed = 6;
+        speed = 3;
         durability = 2;
         row = x;
         col = y;
@@ -14,8 +14,7 @@ public class Centipede extends Drawable {
 
     @Override
     public String toString() {
-        return head ? "\u263A" : "\u25CF";
-    }
+        return head ? "\u263A" : "\u25CF";}
 
     public void move(Centipede parent) {
         // Get next location if head.
