@@ -9,7 +9,6 @@ public class Screen extends JPanel {
 
     public JLabel scr, lvs, gameOver;
     public SpriteManager sprites = new SpriteManager();
-    public SoundManager sounds = new SoundManager();
 
     public Screen() {
         super();
@@ -20,7 +19,7 @@ public class Screen extends JPanel {
                 if(Game.player.lives > 0) {
                     Bullet bullet = new Bullet(Game.player.row, Game.player.col - 10);
                     Game.bullets.add(bullet);
-                    sounds.oof.play();
+                    Game.sounds.bulletSound.play();
                 }
             }
         });

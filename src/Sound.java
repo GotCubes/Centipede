@@ -3,6 +3,7 @@ import java.io.File;
 
 public class Sound {
     public Clip clip;
+    public FloatControl volume;
 
     public Sound(String path) {
         try {
@@ -10,8 +11,8 @@ public class Sound {
             AudioInputStream pewStream = AudioSystem.getAudioInputStream(file);
             clip = AudioSystem.getClip();
             clip.open(pewStream);
-            FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            volume.setValue(-20.0f);
+            volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            volume.setValue(-10.0f);
         } catch(Exception e) {}
     }
 

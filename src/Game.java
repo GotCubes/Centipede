@@ -8,6 +8,7 @@ import java.util.Random;
 
 public class Game extends JFrame implements ActionListener{
 
+    public static SoundManager sounds = new SoundManager();
     public static Drawable blank = new Drawable();
     public static Drawable[][] board = new Drawable[30][30];
     public static ArrayList centipedes = new ArrayList();
@@ -254,14 +255,17 @@ public class Game extends JFrame implements ActionListener{
             if(--player.lives > 0) { // Player has lives remaining.
                 // Reset the screen.
                 restart = true;
+                sounds.hitSound.play();
 
                 // Move components back to their starting locations.
                 bullets.clear();
                 initCentipede();
                 initSpider();
                 restoreShrooms();
-            }else // Game ends.
+            } else { // Game ends.
                 gameTimer.stop();
+                sounds.deadSound.play();
+            }
         }
     }
 

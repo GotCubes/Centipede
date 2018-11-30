@@ -1,8 +1,12 @@
 public class SoundManager {
 
-    public Sound oof;
+    public Sound    bulletSound,
+                    hitSound,
+                    deadSound;
 
     public SoundManager() {
-        oof = new Sound("sounds/oof.wav");
+        bulletSound = new Sound("sounds/bulletSound.wav");
+        hitSound = new Sound("sounds/hitSound.wav");
+        deadSound = new Sound("sounds/deadSound.wav");
     }
 }
