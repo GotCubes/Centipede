@@ -158,10 +158,14 @@ public class Game extends JFrame implements ActionListener{
                                     player.score += 600; // Destroyed entire centipede.
                                 } else
                                     player.score += 5;
+                                sounds.centipedeDead.play();
+
                                 ctoSplit.add(c);
                                 itoSplit.add(c.indexOf(s));
-                            } else // Hit
+                            } else {// Hit
                                 player.score += 2;
+                                sounds.centipedeHit.play();
+                            }
 
                             used = true;
                             btoRemove.add(b);
@@ -211,8 +215,11 @@ public class Game extends JFrame implements ActionListener{
                         if(++s.hitCnt == s.durability) { // Destroyed
                             player.score += 600;
                             stoRemove.add(s);
-                        } else // Hit
+                            sounds.spiderDead.play();
+                        } else {// Hit
                             player.score += 100;
+                            sounds.spiderHit.play();
+                        }
 
                         used = true;
                         btoRemove.add(b);
@@ -255,7 +262,7 @@ public class Game extends JFrame implements ActionListener{
             if(--player.lives > 0) { // Player has lives remaining.
                 // Reset the screen.
                 restart = true;
-                sounds.hitSound.play();
+                sounds.playerHit.play();
 
                 // Move components back to their starting locations.
                 bullets.clear();
@@ -264,7 +271,7 @@ public class Game extends JFrame implements ActionListener{
                 restoreShrooms();
             } else { // Game ends.
                 gameTimer.stop();
-                sounds.deadSound.play();
+                sounds.playerDead.play();
             }
         }
     }

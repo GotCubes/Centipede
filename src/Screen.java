@@ -19,7 +19,7 @@ public class Screen extends JPanel {
                 if(Game.player.lives > 0) {
                     Bullet bullet = new Bullet(Game.player.row, Game.player.col - 10);
                     Game.bullets.add(bullet);
-                    Game.sounds.bulletSound.play();
+                    Game.sounds.bullet.play();
                 }
             }
         });
