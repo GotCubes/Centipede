@@ -23,7 +23,7 @@ public class SpriteManager {
             mushSprite2 = ImageIO.read(new File("sprites/mushSprite2.png"));
             playerSprite = ImageIO.read(new File("sprites/playerSprite.png"));
             spiderSprite = ImageIO.read(new File("sprites/spiderSprite.png"));
-        } catch (Exception e) {}
+        } catch (Exception e) { System.out.println("Failed to load all sprites."); }
     }
 
 }

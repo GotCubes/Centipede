@@ -13,7 +13,7 @@ public class Sound {
             clip.open(pewStream);
             volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             volume.setValue(-10.0f);
-        } catch(Exception e) {}
+        } catch(Exception e) { System.out.println("Failed to load sound " + path); }
     }
 
     public void play() {
