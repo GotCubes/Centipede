@@ -1,18 +1,18 @@
-public class Centipede extends Drawable {
+class Centipede extends Drawable {
 
     boolean dir; // Direction that the centipede is moving.
     boolean head; // Indicates segment start.
 
-    public Centipede(int x, int y, boolean h) {
+    Centipede(int x, int y, boolean h) {
         dir = false;
-        speed = 4;
+        speed = 3;
         durability = 2;
         row = x;
         col = y;
         head = h;
     }
 
-    public void move(Centipede parent) {
+    void move(Centipede parent) {
         if(frameCnt == 0) {
             // Get next location if head.
             if (head) {

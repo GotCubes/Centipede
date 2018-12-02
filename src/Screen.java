@@ -3,14 +3,13 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
 
-public class Screen extends JPanel {
+class Screen extends JPanel {
 
-    public JLabel scr, lvs, gameOver;
-    public SpriteManager sprites = new SpriteManager();
+    private JLabel scr, lvs, gameOver;
+    private SpriteManager sprites = new SpriteManager();
 
-    public Screen() {
+    Screen() {
         super();
 
         setLayout(null);
@@ -66,47 +65,30 @@ public class Screen extends JPanel {
         if(Game.player.lives == 0)
             gameOver.setVisible(true);
 
-        Iterator it = Game.centipedes.iterator();
-        while(it.hasNext()) {
-            ArrayList c = (ArrayList) it.next();
-            Iterator it2 = c.iterator();
-            while(it2.hasNext()) {
-                Centipede s = (Centipede) it2.next();
+        for(ArrayList<Centipede> c : Game.centipedes) {
+            for(Centipede s : c)
                 g2d.drawImage(s.head ? sprites.headSprite : sprites.bodySprite, s.col * 20 + 25, s.row * 20 + 50, this);
-            }
         }
 
         // Draw mushrooms.
-        it = Game.mushrooms.iterator();
-        while(it.hasNext()) {
-            Mushroom mush = (Mushroom) it.next();
-
-            if(mush.hitCnt == 0)
-                g2d.drawImage(sprites.mushSprite0, mush.col * 20 + 25, mush.row * 20 + 50, this);
-            else if(mush.hitCnt == 1)
-                g2d.drawImage(sprites.mushSprite1, mush.col * 20 + 25, mush.row * 20 + 50, this);
-            else if(mush.hitCnt == 2)
-                g2d.drawImage(sprites.mushSprite2, mush.col * 20 + 25, mush.row * 20 + 50, this);
+        for(Mushroom m : Game.mushrooms) {
+            if(m.hitCnt == 0)
+                g2d.drawImage(sprites.mushSprite0, m.col * 20 + 25, m.row * 20 + 50, this);
+            else if(m.hitCnt == 1)
+                g2d.drawImage(sprites.mushSprite1, m.col * 20 + 25, m.row * 20 + 50, this);
+            else if(m.hitCnt == 2)
+                g2d.drawImage(sprites.mushSprite2, m.col * 20 + 25, m.row * 20 + 50, this);
         }
 
         // Draw spider;
-        it = Game.spiders.iterator();
-        while(it.hasNext()) {
-            Spider s = (Spider) it.next();
+        for(Spider s : Game.spiders)
             g2d.drawImage(sprites.spiderSprite, s.row, s.col, this);
-        }
 
         // Draw bullets.
-        it = Game.bullets.iterator();
-        while(it.hasNext()) {
-            Bullet bullet = (Bullet) it.next();
-            g2d.drawImage(sprites.bulletSprite, bullet.row - 3, bullet.col, this);
-        }
+        for(Bullet b : Game.bullets)
+            g2d.drawImage(sprites.bulletSprite, b.row - 3, b.col, this);
 
         // Draw player.
-        if(!Game.restart)
-            g2d.drawImage(sprites.playerSprite, Game.player.row - 10, Game.player.col - 10, this);
-        else
-            g2d.drawImage(sprites.playerSprite, 325, 630, this);
+        g2d.drawImage(sprites.playerSprite, Game.player.row - 10, Game.player.col - 10, this);
     }
 }

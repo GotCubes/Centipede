@@ -4,24 +4,25 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Random;
 
-public class Game extends JFrame implements ActionListener{
+class Game extends JFrame implements ActionListener{
 
-    public static SoundManager sounds = new SoundManager();
-    public static Drawable blank = new Drawable();
-    public static Drawable[][] board = new Drawable[30][30];
-    public static ArrayList centipedes = new ArrayList();
-    public static ArrayList mushrooms = new ArrayList();
-    public static ArrayList bullets = new ArrayList();
-    public static ArrayList spiders = new ArrayList();
-    public static Player player;
-    public static Timer gameTimer;
-    public static boolean restart;
-    public static int density;
+    // Declare all drawable objects.
+    static Player player;
+    static Drawable[][] board = new Drawable[30][30];
+    static ArrayList<ArrayList<Centipede>> centipedes = new ArrayList<>();
+    static ArrayList<Mushroom> mushrooms = new ArrayList<>();
+    static ArrayList<Bullet> bullets = new ArrayList<>();
+    static ArrayList<Spider> spiders = new ArrayList<>();
+
+    // Declare game parameters.
+    static SoundManager sounds = new SoundManager();
+    private static Timer gameTimer;
+    private static boolean restart;
+    private static int density;
 
     // Initialize game.
-    public Game() {
+    private Game() {
         // Set window behavior.
         setVisible(true);
         setResizable(false);
@@ -49,12 +50,6 @@ public class Game extends JFrame implements ActionListener{
             System.exit(-2);
         }
 
-        // Initialize empty board.
-        for(int i = 0; i < board.length; i++) {
-            for(int j = 0; j < board[0].length; j++)
-                board[i][j] = blank;
-        }
-
         // Place centipede and mushrooms.
         initPlayer();
         initCentipede();
@@ -65,7 +60,6 @@ public class Game extends JFrame implements ActionListener{
         Game game = new Game();
 
         // Initialize game loop;
-        restart = true;
         gameTimer = new Timer(17, game);
         gameTimer.setRepeats(true);
         gameTimer.start();
@@ -75,20 +69,19 @@ public class Game extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         // Pause temporarily if restarting.
         if(restart) {
-            // Default cursor for adjustment.
-            getContentPane().setCursor(Cursor.getDefaultCursor());
-
             // Allow player to adjust.
             try {
                 Thread.sleep(1000);
             } catch(Exception exc) { System.out.println("Thread failed to sleep."); }
 
-            // Reset invisible cursor.
-            BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-            Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank");
-            getContentPane().setCursor(blankCursor);
+            // Resume game.
             restart = false;
         }
+
+        // Reset invisible cursor.
+        BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank");
+        getContentPane().setCursor(blankCursor);
 
         // Repaint the panel.
         testCollisions();
@@ -98,23 +91,21 @@ public class Game extends JFrame implements ActionListener{
     }
 
     // Test to see if any collisions occurred in the frame.
-    public void testCollisions() {
-        ArrayList btoRemove = new ArrayList();
-        ArrayList mtoRemove = new ArrayList();
-        ArrayList stoRemove = new ArrayList();
-        ArrayList ctoSplit = new ArrayList();
-        ArrayList itoSplit = new ArrayList();
+    private void testCollisions() {
+        ArrayList<Bullet> btoRemove = new ArrayList<>();
+        ArrayList<Mushroom> mtoRemove = new ArrayList<>();
+        ArrayList<Spider> stoRemove = new ArrayList<>();
+        ArrayList<ArrayList<Centipede>> ctoSplit = new ArrayList<>();
+        ArrayList<Integer> itoSplit = new ArrayList<>();
         boolean used = false;
 
         // Iterate through all existing bullets.
-        Iterator iter = bullets.iterator();
-        while(iter.hasNext() && !used) {
-            Bullet b = (Bullet) iter.next();
+        Iterator<Bullet> b_it = bullets.iterator();
+        while(b_it.hasNext() && !used) {
+            Bullet b = b_it.next();
 
             // Test all mushrooms to see if they were hit.
-            Iterator it = mushrooms.iterator();
-            while(it.hasNext() && !used) {
-                Mushroom m = (Mushroom) it.next();
+            for(Mushroom m : mushrooms) {
                 int clb = (m.row * 20) + 50;
                 int cub = (m.row * 20) + 50 + 20;
                 int rlb = (m.col * 20) + 25;
@@ -125,7 +116,7 @@ public class Game extends JFrame implements ActionListener{
                         if(++m.hitCnt == m.durability) { // Destroyed
                             player.score += 5;
                             mtoRemove.add(m);
-                            board[m.row][m.col] = blank;
+                            board[m.row][m.col] = null;
                         } else // Hit
                             player.score += 1;
 
@@ -136,12 +127,16 @@ public class Game extends JFrame implements ActionListener{
             }
             mushrooms.removeAll(mtoRemove);
 
-            it = centipedes.iterator();
-            while(it.hasNext() && !used) {
-                ArrayList c = (ArrayList) it.next();
-                Iterator it2 = c.iterator();
-                while(it2.hasNext() && !used) {
-                    Centipede s = (Centipede) it2.next();
+            // Test all centipedes to see if they wee hit.
+            Iterator<ArrayList<Centipede>> c_it = centipedes.iterator();
+            while(c_it.hasNext() && !used) {
+                ArrayList<Centipede> c = c_it.next();
+
+                // Test all centipede segments to see if they were hit.
+                Iterator<Centipede> s_it = c.iterator();
+                while(s_it.hasNext() && !used) {
+                    Centipede s = s_it.next();
+
                     int clb = (s.row * 20) + 50;
                     int cub = (s.row * 20) + 50 + 20;
                     int rlb = (s.col * 20) + 25;
@@ -153,8 +148,6 @@ public class Game extends JFrame implements ActionListener{
                                 if(centipedes.size() == 1 && c.size() == 1) {
                                     initCentipede();
                                     initSpider();
-                                    if(spiders.size() == 0)
-                                        initSpider();
                                     player.score += 600; // Destroyed entire centipede.
                                 } else
                                     player.score += 5;
@@ -175,30 +168,30 @@ public class Game extends JFrame implements ActionListener{
             }
 
             // Split all destroyed segments.
-            it = ctoSplit.iterator();
-            Iterator it2 = itoSplit.iterator();
-            while(it.hasNext() && it2.hasNext()) {
-                ArrayList c = (ArrayList) it.next();
-                int index = (int) it2.next();
+            Iterator<ArrayList<Centipede>> x_it = ctoSplit.iterator();
+            Iterator<Integer> i_it = itoSplit.iterator();
+            while(x_it.hasNext() && i_it.hasNext()) {
+                ArrayList<Centipede> c = x_it.next();
+                int index = i_it.next();
 
-                Centipede s = (Centipede) c.get(index);
+                Centipede s = c.get(index);
                 if(s.head) { // Head
                     if(c.size() == 1) { // Single segment.
                         c.clear();
                         centipedes.remove(c);
                     } else { // Head of existing centipede.
-                        s = (Centipede) c.get(index - 1);
+                        s = c.get(index - 1);
                         s.head = true;
                         c.remove(index);
                     }
                 } else if(index == 0) // Tail
                     c.remove(index);
                 else { // Middle
-                    s = (Centipede) c.get(index - 1);
+                    s = c.get(index - 1);
                     s.head = true;
                     s.dir = !s.dir;
 
-                    ArrayList c2 = new ArrayList(c.subList(0, index));
+                    ArrayList<Centipede> c2 = new ArrayList<>(c.subList(0, index));
                     centipedes.add(c2);
 
                     c.subList(0, index + 1).clear();
@@ -206,9 +199,7 @@ public class Game extends JFrame implements ActionListener{
             }
 
             // Test the spider to see if it was hit.
-            it = spiders.iterator();
-            while(it.hasNext() && !used) {
-                Spider s = (Spider) it.next();
+            for(Spider s : spiders) {
                 if(b.col <= s.col + 20 && b.col >= s.col) {
                     if(b.row <= s.row + 20 && b.row >= s.row) {
                         // Score points for hitting spider.
@@ -232,12 +223,8 @@ public class Game extends JFrame implements ActionListener{
 
         // Test all segments to see if they hit the player.
         player.hit = false;
-        iter = centipedes.iterator();
-        while(iter.hasNext()) {
-            ArrayList c = (ArrayList) iter.next();
-            Iterator iter2 = c.iterator();
-            while(iter2.hasNext()) {
-                Centipede s = (Centipede) iter2.next();
+        for(ArrayList<Centipede> c : centipedes) {
+            for(Centipede s : c) {
                 int cx = (s.col * 20) + 25 + 10;
                 int cy = (s.row * 20) + 50 + 10;
 
@@ -248,10 +235,7 @@ public class Game extends JFrame implements ActionListener{
         }
 
         // Test to see if the spider hit the player.
-        iter = spiders.iterator();
-        while(iter.hasNext()) {
-            Spider s = (Spider) iter.next();
-
+        for(Spider s : spiders) {
             // Player runs into the spider.
             if (Math.pow((s.row + 10) - player.row, 2) + Math.pow((s.col + 10) - player.col, 2) < 400)
                 player.hit = true;
@@ -259,6 +243,9 @@ public class Game extends JFrame implements ActionListener{
 
         // Process getting hit.
         if(player.hit) {
+            // Default cursor for adjustment.
+            getContentPane().setCursor(Cursor.getDefaultCursor());
+
             if(--player.lives > 0) { // Player has lives remaining.
                 // Reset the screen.
                 restart = true;
@@ -277,52 +264,42 @@ public class Game extends JFrame implements ActionListener{
     }
 
     // Update the locations of all the items.
-    public void updateLocations() {
+    private void updateLocations() {
         // Update player location.
         Point q = getLocationOnScreen();
         player.move(q);
 
         // Update all centipede segments.
-        Iterator it = centipedes.iterator();
-        while(it.hasNext()) {
-            ArrayList c = (ArrayList) it.next();
-            Iterator it2 = c.iterator();
-            while(it2.hasNext()) {
-                Centipede s = (Centipede) it2.next();
-                Centipede parent = s.head ? null : (Centipede) c.get(c.indexOf(s) + 1);
+        for(ArrayList<Centipede> c : centipedes) {
+            for(Centipede s : c) {
+                Centipede parent = s.head ? null : c.get(c.indexOf(s) + 1);
                 s.move(parent);
             }
         }
 
         // Update the spider.
-        it = spiders.iterator();
-        while(it.hasNext()) {
-            Spider s = (Spider) it.next();
+        for(Spider s : spiders)
             s.move();
-        }
 
         // Update all bullets.
-        it = bullets.iterator();
-        ArrayList toRemove = new ArrayList();
-        while(it.hasNext()) {
-            Bullet bullet = (Bullet) it.next();
-
+        ArrayList<Bullet> toRemove = new ArrayList<>();
+        for(Bullet b : bullets) {
             // Move bullets up the screen.
-            if(bullet.move())
-                toRemove.add(bullet);
+            if(b.move())
+                toRemove.add(b);
         }
         bullets.removeAll(toRemove);
     }
 
     // Initialize the player.
-    public static void initPlayer() {
+    private static void initPlayer() {
         player = new Player(325, 630);
     }
 
     // Initialize the centipede.
-    public static void initCentipede() {
+    private static void initCentipede() {
         centipedes.clear();
-        ArrayList c = new ArrayList();
+        ArrayList<Centipede> c = new ArrayList<>();
 
         for(int i = 0; i < 12; i++)
             c.add(new Centipede(0, 29 - i,i == 11));
@@ -330,30 +307,32 @@ public class Game extends JFrame implements ActionListener{
     }
 
     // Initialize the spider.
-    public static void initSpider() {
+    private static void initSpider() {
         spiders.clear();
         spiders.add(new Spider(45, 590));
     }
 
     // Place mushrooms on the board according to the density.
-    public static void placeShrooms() {
-        ArrayList valCols = new ArrayList();
+    private static void placeShrooms() {
+        ArrayList<Integer> valCols = new ArrayList<>();
         for(int i = 1; i < (board[0].length - 1); i++) valCols.add(i);
 
         // Iterate through each row in the placeable range.
         for(int row = 1; row < (board.length  - 3); row++) {
             // Get each valid column in the row.
-            Iterator it = valCols.iterator();
+            Iterator<Integer> it = valCols.iterator();
 
-            ArrayList nxtVals = new ArrayList();
+            ArrayList<Integer> nxtVals = new ArrayList<>();
             for(int i = 1; i < (board[0].length - 1); i++) nxtVals.add(i);
 
             // Iterate through each valid column.
             while(it.hasNext()) {
-                int col = (Integer) it.next();
-                if(getXinYChance(density, 30)) {
+                int col = it.next();
+                int rand = (int) (Math.random() * (30 + 1));
+
+                if(rand < density) {
                     board[row][col] = new Mushroom(row, col);
-                    mushrooms.add(board[row][col]);
+                    mushrooms.add((Mushroom) board[row][col]);
                     nxtVals.remove(Integer.valueOf(col - 1));
                     nxtVals.remove(Integer.valueOf(col + 1));
                 }
@@ -365,20 +344,12 @@ public class Game extends JFrame implements ActionListener{
     }
 
     // Restore all decayed mushrooms to full health.
-    public static void restoreShrooms() {
-        Iterator it = mushrooms.iterator();
-        while(it.hasNext()) {
-            Mushroom m = (Mushroom) it.next();
+    private static void restoreShrooms() {
+        for(Mushroom m : mushrooms) {
             if(m.hitCnt != 0) {
                 m.hitCnt = 0;
                 player.score += 10;
             }
         }
-    }
-
-    // Return true with a num in den chance.
-    public static boolean getXinYChance(int num, int den) {
-        Random rand = new Random();
-        return rand.nextInt(den) < num;
     }
 }

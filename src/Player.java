@@ -1,11 +1,11 @@
 import java.awt.*;
 
-public class Player extends Drawable{
+class Player extends Drawable{
 
-    public int lives, score;
-    public boolean hit;
+    int lives, score;
+    boolean hit;
 
-    public Player(int x, int y) {
+    Player(int x, int y) {
         speed = 1;
         row = x;
         col = y;
@@ -14,7 +14,7 @@ public class Player extends Drawable{
         hit = false;
     }
 
-    public void move(Point q) {
+    void move(Point q) {
         // Get mouse location.
         Point p = MouseInfo.getPointerInfo().getLocation();
 

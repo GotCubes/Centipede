@@ -2,18 +2,18 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-public class SpriteManager {
+class SpriteManager {
 
-    public BufferedImage    bodySprite,
-                            bulletSprite,
-                            headSprite,
-                            mushSprite0,
-                            mushSprite1,
-                            mushSprite2,
-                            playerSprite,
-                            spiderSprite;
+    BufferedImage   bodySprite,
+                    bulletSprite,
+                    headSprite,
+                    mushSprite0,
+                    mushSprite1,
+                    mushSprite2,
+                    playerSprite,
+                    spiderSprite;
 
-    public SpriteManager() {
+    SpriteManager() {
         try {
             bodySprite = ImageIO.read(new File("sprites/bodySprite.png"));
             bulletSprite = ImageIO.read(new File("sprites/bulletSprite.png"));

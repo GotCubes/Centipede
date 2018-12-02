@@ -1,14 +1,14 @@
-public class SoundManager {
+class SoundManager {
 
-    public Sound    bullet,
-                    playerHit,
-                    playerDead,
-                    centipedeHit,
-                    centipedeDead,
-                    spiderHit,
-                    spiderDead;
+    Sound   bullet,
+            playerHit,
+            playerDead,
+            centipedeHit,
+            centipedeDead,
+            spiderHit,
+            spiderDead;
 
-    public SoundManager() {
+    SoundManager() {
         bullet = new Sound("sounds/bullet.wav");
         playerHit = new Sound("sounds/playerHit.wav");
         playerDead = new Sound("sounds/playerDead.wav");

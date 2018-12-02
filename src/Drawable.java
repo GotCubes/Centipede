@@ -1,8 +1,8 @@
-public class Drawable {
+class Drawable {
 
-    public int speed, durability, row, col, frameCnt, hitCnt;
+    int speed, durability, row, col, frameCnt, hitCnt;
 
-    public Drawable(){
+    Drawable(){
         frameCnt = 0;
         hitCnt = 0;
         speed = 1;
